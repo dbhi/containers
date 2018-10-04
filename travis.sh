@@ -8,7 +8,7 @@ case $arch in
     docker build -t aptman/dbhi:bionic-aarch64 -f dbhi_ubuntu --build-arg IMAGE="arm64v8/ubuntu:bionic" --target base .
     docker build -t aptman/dbhi:bionic-mambo-aarch64 -f dbhi_ubuntu --build-arg IMAGE="arm64v8/ubuntu:bionic" --target mambo .
     #docker build -t aptman/dbhi:bionic-dr-aarch64 -f dbhi_ubuntu --build-arg IMAGE="arm64v8/ubuntu:bionic" --target dr .
-    docker build -t aptman/dbhi:bionic-spinal-aarch64 -f dbhi_ubuntu --build-arg IMAGE="arm64v8/ubuntu:bionic" --target spinal .
+    #docker build -t aptman/dbhi:bionic-spinal-aarch64 -f dbhi_ubuntu --build-arg IMAGE="arm64v8/ubuntu:bionic" --target spinal .
     ;;
   "x86_64"*)
     docker build -t aptman/dbhi:bionic-amd64 -f dbhi_ubuntu --build-arg IMAGE="ubuntu:bionic" --target base .
