@@ -9,7 +9,7 @@ This repository contains containerized open and free development tools for decou
 ``` bash
 docker push aptman/dbhi:bionic-dr-amd64
 docker manifest push --purge aptman/dbhi:bionic-dr
-docker manifest create -a aptman/dbhi:bionic-dr aptman/dbhi:bionic-dr-amd64
+docker manifest create -a aptman/dbhi:bionic-dr aptman/dbhi:bionic-dr-amd64 aptman/dbhi:bionic-dr-aarch64
 ```
 
 ``` bash
