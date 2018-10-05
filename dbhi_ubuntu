@@ -102,6 +102,31 @@ RUN apt update -qq \
  && apt autoclean && apt clean && apt -y autoremove
 
 #
+# Add DynamoRIO to base
+#
+
+FROM base AS dr
+
+RUN apt update \
+ && DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends \
+   cmake \
+   g++-6 \
+   doxygen \
+   transfig \
+   imagemagick \
+   ghostscript \
+ && apt autoclean && apt clean && apt -y autoremove \
+ && rm /usr/bin/gcc \
+ && ln -s /usr/bin/gcc-6 /usr/bin/gcc \
+ && rm /usr/bin/g++ \
+ && ln -s /usr/bin/g++-6 /usr/bin/g++ \
+ && git clone https://github.com/DynamoRIO/dynamorio /opt/dynamorio \
+ && cd /opt/dynamorio && mkdir build && cd build \
+ && cmake .. && make -j
+
+ENV DYNAMORIO_HOME /opt/dynamorio/build/
+
+#
 # Build Verilator
 #
 
@@ -188,28 +213,3 @@ RUN mkdir -p $RISCV/test && cd $RISCV/test \
 ##RUN echo 'GREEN="\[$(tput setaf 2)\]"' >> $WORKDIR/.bashrc
 ##RUN echo 'export PS1="${GREEN}\u:\W${RESET} $ "' >> $WORKDIR/.bashrc
 #
-
-#
-# Add DynamoRIO to base
-#
-
-FROM base AS dr
-
-RUN apt update \
- && DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends \
-   cmake \
-   g++-6 \
-   doxygen \
-   transfig \
-   imagemagick \
-   ghostscript \
- && apt autoclean && apt clean && apt -y autoremove \
- && rm /usr/bin/gcc \
- && ln -s /usr/bin/gcc-6 /usr/bin/gcc \
- && rm /usr/bin/g++ \
- && ln -s /usr/bin/g++-6 /usr/bin/g++ \
- && git clone https://github.com/DynamoRIO/dynamorio /opt/dynamorio \
- && cd /opt/dynamorio && mkdir build && cd build \
- && cmake .. && make -j
-
-ENV DYNAMORIO_HOME /opt/dynamorio/build/
