@@ -198,13 +198,16 @@ FROM base AS dr
 RUN apt update \
  && DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends \
    cmake \
-   g++ \
-   g++-multilib \
+   g++-6 \
    doxygen \
    transfig \
    imagemagick \
    ghostscript \
  && apt autoclean && apt clean && apt -y autoremove \
+ && rm /usr/bin/gcc \
+ && ln -s /usr/bin/gcc-6 /usr/bin/gcc \
+ && rm /usr/bin/g++ \
+ && ln -s /usr/bin/g++-6 /usr/bin/g++ \
  && git clone https://github.com/DynamoRIO/dynamorio /opt/dynamorio \
  && cd /opt/dynamorio && mkdir build && cd build \
  && cmake .. && make -j
