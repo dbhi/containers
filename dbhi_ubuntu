@@ -208,3 +208,5 @@ RUN apt update \
  && git clone https://github.com/DynamoRIO/dynamorio /opt/dynamorio \
  && cd /opt/dynamorio && mkdir build && cd build \
  && cmake .. && make -j
+
+ENV DYNAMORIO_HOME /opt/dynamorio/build/
