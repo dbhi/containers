@@ -1,17 +1,22 @@
 {
 	"aptman/dbhi:latest": {
 		"aptman/dbhi:bionic-amd64":   { "architecture": "amd64", "os": "linux" },
-		"aptman/dbhi:bionic-aarch64": { "architecture": "arm64", "os": "linux" }
+		"aptman/dbhi:bionic-aarch64": { "architecture": "arm64", "os": "linux" },
+		"aptman/dbhi:bionic-aarch32": { "architecture": "arm32", "os": "linux" }
 	},
 	"aptman/dbhi:bionic": {
 		"aptman/dbhi:bionic-amd64":   { "architecture": "amd64", "os": "linux" },
-		"aptman/dbhi:bionic-aarch64": { "architecture": "arm64", "os": "linux" }
+		"aptman/dbhi:bionic-aarch64": { "architecture": "arm64", "os": "linux" },
+		"aptman/dbhi:bionic-aarch32": { "architecture": "arm32", "os": "linux" }
 	},
 	"aptman/dbhi:bionic-mambo": {
-		"aptman/dbhi:bionic-mambo-aarch64": { "architecture": "arm64", "os": "linux" }
+		"aptman/dbhi:bionic-mambo-aarch64": { "architecture": "arm64", "os": "linux" },
+		"aptman/dbhi:bionic-mambo-aarch32": { "architecture": "arm32", "os": "linux" }
 	},
 	"aptman/dbhi:bionic-dr": {
-		"aptman/dbhi:bionic-dr-amd64": { "architecture": "amd64", "os": "linux" }
+		"aptman/dbhi:bionic-dr-amd64": { "architecture": "amd64", "os": "linux" },
+		"aptman/dbhi:bionic-dr-aarch64": { "architecture": "arm64", "os": "linux" },
+		"aptman/dbhi:bionic-dr-aarch32": { "architecture": "arm32", "os": "linux" }
 	},
 	"aptman/dbhi:bionic-spinal": {
 		"aptman/dbhi:bionic-spinal-amd64": { "architecture": "amd64", "os": "linux" }
