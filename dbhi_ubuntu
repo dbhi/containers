@@ -183,7 +183,7 @@ RUN apt update \
 
 RUN git clone https://github.com/SpinalHDL/SpinalHDL.git /opt/SpinalHDL \
  && cd /opt/SpinalHDL \
- && sbt clean compile publish-local \
+ && sbt clean compile publishLocal \
  && cd /opt \
  && git clone https://github.com/SpinalHDL/VexRiscvSocSoftware.git
 
