@@ -5,12 +5,12 @@ install: skip
 addons:
   apt:
     packages:
-    - docker-ce
-script: "./travis.sh"
+    - pass
+script: "./travis.sh -b"
 deploy:
   provider: script
   skip_cleanup: true
-  script: "./deploy2dockerhub.sh"
+  script: "./travis.sh -p"
   on:
-    repo: ghdl/docker
-branch: master
+    repo: umarcor/dbhi
+    branch: docker
