@@ -205,10 +205,3 @@ RUN mkdir -p $RISCV/test && cd $RISCV/test \
  && riscv64-unknown-elf-gcc -o hello hello.c \
  && cd / && rm -rf $RISCV/test
 
-
-##-- Customize terminal
-##
-##RUN echo 'RESET="\[$(tput sgr0)\]"' >> $WORKDIR/.bashrc
-##RUN echo 'GREEN="\[$(tput setaf 2)\]"' >> $WORKDIR/.bashrc
-##RUN echo 'export PS1="${GREEN}\u:\W${RESET} $ "' >> $WORKDIR/.bashrc
-#
