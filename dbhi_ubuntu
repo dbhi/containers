@@ -14,7 +14,8 @@ RUN apt-get update -qq \
       clang-6.0 \
       gcc \
       git \
-      gnat-5 \
+      gnat-8 \
+      libstdc++-8-dev \
       llvm-6.0-dev \
       make \
       zlib1g-dev \
@@ -62,7 +63,7 @@ RUN apt update -qq \
       git \
       graphviz \
       libc6-dev \
-      libgnat-5 \
+      libgnat-8 \
       libgtk-3-0 \
       libllvm6.0 \
       libtcl8.6 \
@@ -92,7 +93,7 @@ RUN tar -xzf /tmp/ghdl.tgz -C /usr/local \
 ENV PYTHONPATH=/opt/vunit
 
 #
-# Add MAMBO to base
+# Add MAMBO dependencies to base
 #
 
 FROM base AS mambo

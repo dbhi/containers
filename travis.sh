@@ -103,9 +103,41 @@ EOF
 #---
 
 push () {
+  mkdir -p ~/.docker
+  echo '{"experimental": "enabled"}' > ~/.docker/config.json
   getDockerCredentialPass
   dockerLogin
-  echo "TODO Logic to push images and manifests not added yet"
+
+  DBHI_IMAGE="aptman/dbhi:bionic"
+
+  travis_start "base" "DOCKER push" "${DBHI_IMAGE}-amd64"
+  docker push "${DBHI_IMAGE}-amd64"
+  travis_finish "base"
+
+  travis_start "dr" "DOCKER push" "${DBHI_IMAGE}-dr-amd64"
+  docker push "${DBHI_IMAGE}-dr-amd64"
+  travis_finish "dr"
+
+  travis_start "spinal" "DOCKER push" "${DBHI_IMAGE}-spinal-amd64"
+  docker push "${DBHI_IMAGE}-spinal-amd64"
+  travis_finish "spinal"
+
+# https://github.com/docker/cli/issues/954
+
+  docker manifest create -a "$DBHI_IMAGE" \
+    "$DBHI_IMAGE"-amd64 \
+    "$DBHI_IMAGE"-aarch64
+  docker manifest push --purge "$DBHI_IMAGE"
+
+  docker manifest create -a "$DBHI_IMAGE"-dr \
+    "$DBHI_IMAGE"-dr-amd64 \
+    "$DBHI_IMAGE"-dr-aarch64
+  docker manifest push --purge "$DBHI_IMAGE"-dr
+
+  docker manifest create -a "$DBHI_IMAGE"-spinal \
+    "$DBHI_IMAGE"-spinal-amd64
+  docker manifest push --purge "$DBHI_IMAGE"-spinal
+
   docker logout
 }
 

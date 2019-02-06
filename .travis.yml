@@ -1,4 +1,5 @@
 os: linux
+dist: xenial
 services: docker
 language: minimal
 install: skip
