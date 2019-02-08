@@ -118,6 +118,10 @@ push () {
   docker push "${DBHI_IMAGE}-dr-amd64"
   travis_finish "dr"
 
+  travis_start "gRPC" "DOCKER push" "aptman/dbhi:stretch-gRPC-amd64"
+  docker push "aptman/dbhi:stretch-gRPC-amd64"
+  travis_finish "gRPC"
+
   travis_start "gtkwave" "DOCKER push" "${DBHI_IMAGE}-gtkwave-amd64"
   docker push "${DBHI_IMAGE}-gtkwave-amd64"
   travis_finish "gtkwave"
@@ -137,6 +141,10 @@ push () {
     "$DBHI_IMAGE"-dr-amd64 \
     "$DBHI_IMAGE"-dr-aarch64
   docker manifest push --purge "$DBHI_IMAGE"-dr
+
+  docker manifest create -a "aptman/dbhi:stretch-gRPC" \
+    "aptman/dbhi:stretch-gRPC-amd64"
+  docker manifest push --purge "aptman/dbhi:stretch-gRPC"
 
   docker manifest create -a "$DBHI_IMAGE"-gtkwave \
     "$DBHI_IMAGE"-gtkwave-amd64
@@ -178,6 +186,10 @@ build () {
       travis_start "dr" "DOCKER build" "aptman/dbhi:bionic-dr-amd64"
       docker build -t aptman/dbhi:bionic-dr-amd64 -f dbhi_ubuntu --build-arg IMAGE="ubuntu:bionic" --target dr .
       travis_finish "dr"
+
+      travis_start "gRPC" "DOCKER build" "aptman/dbhi:stretch-gRPC-amd64"
+      docker build -t aptman/dbhi:stretch-gRPC-amd64 -f gRPC_stretch .
+      travis_finish "gRPC"
 
       travis_start "gtkwave" "DOCKER build" "aptman/dbhi:bionic-gtkwave-amd64"
       docker build -t aptman/dbhi:bionic-gtkwave-amd64 -f gtkwave_ubuntu --build-arg IMAGE="ubuntu:bionic" .

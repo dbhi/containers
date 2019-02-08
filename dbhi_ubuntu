@@ -1,4 +1,4 @@
-ARG IMAGE="ubuntu:xenial"
+ARG IMAGE="ubuntu:bionic"
 
 #
 # Build GHDL
