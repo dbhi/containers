@@ -170,7 +170,7 @@ build () {
   SLUG="aptman/dbhi:bionic"
 
   case $arch in
-    "aarch32")
+    "aarch32"|"armv7l")
       IMG="arm32v7/ubuntu:bionic"
 
       docker build --build-arg IMAGE="$IMG" -t "${SLUG}-aarch32" -f "$DFILE" --target base .
