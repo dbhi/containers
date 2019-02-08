@@ -1,7 +1,7 @@
 ARG IMAGE="ubuntu:xenial"
 
 #
-# Build GHDL and GtkWave
+# Build GHDL
 #
 
 FROM $IMAGE AS build-base
@@ -19,19 +19,6 @@ RUN apt-get update -qq \
       llvm-6.0-dev \
       make \
       zlib1g-dev \
-        build-essential \
-        flex \
-        gawk \
-        gperf \
-        libbz2-dev \
-        libreadline-dev \
-        libffi-dev \
-        libgtk-3-dev \
-        liblzma-dev \
-        pkg-config \
-        subversion \
-        tcl-dev \
-        tk-dev \
   && apt-get autoclean && apt-get clean && apt-get -y autoremove \
   && update-ca-certificates
 
@@ -39,19 +26,10 @@ RUN git clone https://github.com/ghdl/ghdl && cd ghdl \
  && sed -i.bak 's/\(^make\) \(-j$(nproc) 2>make_err\.log\)/\1 LIB_CFLAGS="$LIB_CFLAGS" OPT_FLAGS="$OPT_FLAGS" \2/g' ./dist/travis/build.sh \
  && rm ./dist/travis/build.sh.bak \
  && OPT_FLAGS=-fPIC LIB_CFLAGS=-fPIC ./dist/travis/build.sh -b llvm-6.0 -p ghdl-llvm-fPIC \
- && mv ghdl-llvm-fPIC.tgz /tmp \
- && cd .. \
- && mkdir -pv /tmp/gtkwave && cd /tmp/gtkwave \
- && svn checkout svn://svn.code.sf.net/p/gtkwave/code/gtkwave3-gtk3 ./ \
- && ./configure --prefix="/usr/local" --with-tk=/usr/lib --enable-gtk3 \
- && make -j$(nproc) DESTDIR="$(pwd)/build-dir" \
- && make check \
- && make install DESTDIR="$(pwd)/build-dir" \
- && tar -zcvf /tmp/gtkwave.tgz -C build-dir/usr/local/ . \
- && cd .. && rm -rf gtkwave
+ && mv ghdl-llvm-fPIC.tgz /tmp
 
 #
-# GHDL, GtkWave and VUnit
+# GHDL and VUnit
 #
 
 FROM $IMAGE AS base
@@ -59,33 +37,20 @@ FROM $IMAGE AS base
 RUN apt update -qq \
   && DEBIAN_FRONTEND=noninteractive apt -y install --no-install-recommends \
       ca-certificates \
-      gcc \
       git \
-      graphviz \
-      libc6-dev \
       libgnat-8 \
-      libgtk-3-0 \
       libllvm6.0 \
-      libtcl8.6 \
-      libtk8.6 \
       make \
       python3 \
       python3-pip \
-      tango-icon-theme \
       time \
-      xdot \
-      xterm \
       zlib1g-dev \
   && apt autoclean && apt clean && apt -y autoremove \
   && update-ca-certificates
 
-#  && echo 'gtk-icon-theme-name = "Tango"' >> /usr/share/themes/Raleigh/gtk-2.0/gtkrc
-
 COPY --from=build-base /tmp/ghdl-llvm-fPIC.tgz /tmp/ghdl.tgz
-COPY --from=build-base /tmp/gtkwave.tgz /tmp/
 
 RUN tar -xzf /tmp/ghdl.tgz -C /usr/local \
- && tar -xzf /tmp/gtkwave.tgz -C /usr/local \
  && rm -f /tmp/* \
  && git clone --recurse-submodule https://github.com/vunit/vunit /opt/vunit \
  && pip3 install -r /opt/vunit/requirements.txt
@@ -113,6 +78,7 @@ FROM base AS dr
 RUN apt update \
  && DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends \
    cmake \
+   gcc \
    g++-6 \
    doxygen \
    transfig \
@@ -136,8 +102,6 @@ FROM base AS build-verilator
 
 # Verilator (version 3.9+ required, in general apt-get will give 3.8)
 RUN apt update && apt install -y \
-  git \
-  make \
   autoconf \
   g++ \
   flex \
@@ -152,59 +116,3 @@ RUN mkdir -p $WORKDIR/tools && cd $WORKDIR/tools \
  && make -j$(nproc) \
  && make install DESTDIR="$(pwd)/install-verilator" \
  && mv install-verilator/usr/local /tmp/verilator
-
-#
-# Add SpinalHDL to base
-#
-
-FROM base AS spinal
-
-COPY --from=build-verilator /tmp/verilator/ /usr/local/
-
-# Set frontend required for docker
-ENV DEBIAN_FRONTEND noninteractive
-
-RUN apt update \
- && apt install -y \
-  apt-utils \
-  apt-transport-https \
-  ca-certificates \
-  gnupg2 \
- && echo "deb https://dl.bintray.com/sbt/debian /" | tee -a /etc/apt/sources.list.d/sbt.list \
- && apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2EE0EA64E40A89B84B2DF73499E82A75642AC823 \
- && apt update \
- && apt install -y \
-  g++ \
-  openjdk-8-jdk \
-  sbt \
-  scala \
-  wget
-
-#--- SpinalHDL
-
-RUN git clone https://github.com/SpinalHDL/SpinalHDL.git /opt/SpinalHDL \
- && cd /opt/SpinalHDL \
- && sbt clean compile publishLocal \
- && cd /opt \
- && git clone https://github.com/SpinalHDL/VexRiscvSocSoftware.git
-
-#--- RICSV
-
-ENV RISCV /opt/riscv
-ENV NUMJOBS 1
-
-ENV PATH $RISCV/bin:$PATH
-RUN echo 'export PATH=/opt/riscv/bin:$PATH' >> $WORKDIR/.bashrc
-
-ARG RISCV_GCC_VER=riscv64-unknown-elf-gcc-20170612-x86_64-linux-centos6
-
-RUN cd /opt && wget https://static.dev.sifive.com/dev-tools/$RISCV_GCC_VER.tar.gz -q && \
-    tar -xzvf $RISCV_GCC_VER.tar.gz && \
-    mv $RISCV_GCC_VER /opt/riscv && \
-    rm $RISCV_GCC_VER.tar.gz
-
-RUN mkdir -p $RISCV/test && cd $RISCV/test \
- && echo '#include <stdio.h>\n int main(void) { printf("Hello world!\\n"); return 0; }' > hello.c \
- && riscv64-unknown-elf-gcc -o hello hello.c \
- && cd / && rm -rf $RISCV/test
-

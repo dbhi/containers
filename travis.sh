@@ -118,6 +118,10 @@ push () {
   docker push "${DBHI_IMAGE}-dr-amd64"
   travis_finish "dr"
 
+  travis_start "gtkwave" "DOCKER push" "${DBHI_IMAGE}-gtkwave-amd64"
+  docker push "${DBHI_IMAGE}-gtkwave-amd64"
+  travis_finish "gtkwave"
+
   travis_start "spinal" "DOCKER push" "${DBHI_IMAGE}-spinal-amd64"
   docker push "${DBHI_IMAGE}-spinal-amd64"
   travis_finish "spinal"
@@ -133,6 +137,10 @@ push () {
     "$DBHI_IMAGE"-dr-amd64 \
     "$DBHI_IMAGE"-dr-aarch64
   docker manifest push --purge "$DBHI_IMAGE"-dr
+
+  docker manifest create -a "$DBHI_IMAGE"-gtkwave \
+    "$DBHI_IMAGE"-gtkwave-amd64
+  docker manifest push --purge "$DBHI_IMAGE"-gtkwave
 
   docker manifest create -a "$DBHI_IMAGE"-spinal \
     "$DBHI_IMAGE"-spinal-amd64
@@ -171,8 +179,12 @@ build () {
       docker build -t aptman/dbhi:bionic-dr-amd64 -f dbhi_ubuntu --build-arg IMAGE="ubuntu:bionic" --target dr .
       travis_finish "dr"
 
+      travis_start "gtkwave" "DOCKER build" "aptman/dbhi:bionic-gtkwave-amd64"
+      docker build -t aptman/dbhi:bionic-gtkwave-amd64 -f gtkwave_ubuntu --build-arg IMAGE="ubuntu:bionic" .
+      travis_finish "gtkwave"
+
       travis_start "spinal" "DOCKER build" "aptman/dbhi:bionic-spinal-amd64"
-      docker build -t aptman/dbhi:bionic-spinal-amd64 -f dbhi_ubuntu --build-arg IMAGE="ubuntu:bionic" --target spinal .
+      docker build -t aptman/dbhi:bionic-spinal-amd64 -f spinal_ubuntu --build-arg IMAGE="ubuntu:bionic" .
       travis_finish "spinal"
       ;;
     *)
