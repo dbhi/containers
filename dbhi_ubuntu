@@ -1,10 +1,16 @@
 ARG IMAGE="ubuntu:bionic"
+ARG TAG_GHDL="50da90f509aa6de2961f1795af0be2452bc2c6d9"
+ARG TAG_VUNIT="551314bfcf9268dad7aa71c064c36673d6f40241"
+ARG TAG_DR="bf4df645bd13ed3ee4a777999f09b0b5cd3077d2"
+#ARG TAG_MAMBO=
 
 #
 # Build GHDL
 #
 
 FROM $IMAGE AS build-base
+
+ARG TAG_GHDL
 
 WORKDIR /work
 
@@ -23,6 +29,7 @@ RUN apt-get update -qq \
   && update-ca-certificates
 
 RUN git clone https://github.com/ghdl/ghdl && cd ghdl \
+ && git checkout -b dbhi "$TAG_GHDL" \
  && sed -i.bak 's/\(^make\) \(-j$(nproc) 2>make_err\.log\)/\1 LIB_CFLAGS="$LIB_CFLAGS" OPT_FLAGS="$OPT_FLAGS" \2/g' ./dist/travis/build.sh \
  && rm ./dist/travis/build.sh.bak \
  && OPT_FLAGS=-fPIC LIB_CFLAGS=-fPIC ./dist/travis/build.sh -b llvm-6.0 -p ghdl-llvm-fPIC \
@@ -33,6 +40,8 @@ RUN git clone https://github.com/ghdl/ghdl && cd ghdl \
 #
 
 FROM $IMAGE AS base
+
+ARG TAG_VUNIT
 
 RUN apt update -qq \
   && DEBIAN_FRONTEND=noninteractive apt -y install --no-install-recommends \
@@ -52,7 +61,9 @@ COPY --from=build-base /tmp/ghdl-llvm-fPIC.tgz /tmp/ghdl.tgz
 
 RUN tar -xzf /tmp/ghdl.tgz -C /usr/local \
  && rm -f /tmp/* \
- && git clone --recurse-submodule https://github.com/vunit/vunit /opt/vunit \
+ && git clone --recurse-submodule https://github.com/vunit/vunit /opt/vunit && cd /opt/vunit \
+ && git checkout -b dbhi "$TAG_VUNIT" \
+ && rm -rf .git \
  && pip3 install -r /opt/vunit/requirements.txt
 
 ENV PYTHONPATH=/opt/vunit
@@ -62,6 +73,8 @@ ENV PYTHONPATH=/opt/vunit
 #
 
 FROM base AS mambo
+
+#ARG TAG_MAMBO
 
 RUN apt update -qq \
  && DEBIAN_FRONTEND=noninteractive apt -y install --no-install-recommends \
@@ -74,6 +87,8 @@ RUN apt update -qq \
 #
 
 FROM base AS dr
+
+ARG TAG_DR
 
 RUN apt update \
  && DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends \
@@ -88,8 +103,9 @@ RUN apt update \
  && rm /usr/bin/gcc \
  && ln -s /usr/bin/gcc-6 /usr/bin/gcc \
  && ln -s /usr/bin/g++-6 /usr/bin/g++ \
- && git clone https://github.com/DynamoRIO/dynamorio /opt/dynamorio \
- && cd /opt/dynamorio && mkdir build && cd build \
+ && git clone https://github.com/DynamoRIO/dynamorio /opt/dynamorio && cd /opt/dynamorio \
+ && git checkout -b dbhi "$TAG_DR" \
+ && mkdir build && cd build \
  && cmake .. && make -j
 
 ENV DYNAMORIO_HOME /opt/dynamorio/build/
