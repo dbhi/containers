@@ -47,6 +47,7 @@ ARG TAG_VUNIT
 RUN apt update -qq \
   && DEBIAN_FRONTEND=noninteractive apt -y install --no-install-recommends \
       ca-certificates \
+      gcc \
       git \
       libgnat-8 \
       libllvm6.0 \
