@@ -1,0 +1,13 @@
+ARG IMAGE="ubuntu:bionic"
+
+#ARG TAG_MAMBO=
+
+FROM $IMAGE
+
+#ARG TAG_MAMBO
+
+RUN apt update -qq \
+ && DEBIAN_FRONTEND=noninteractive apt -y install --no-install-recommends \
+   libelf-dev \
+   ruby \
+ && apt autoclean && apt clean && apt -y autoremove

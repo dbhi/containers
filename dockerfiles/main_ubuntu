@@ -2,8 +2,6 @@ ARG IMAGE="ubuntu:bionic"
 
 ARG TAG_GHDL="50da90f509aa6de2961f1795af0be2452bc2c6d9"
 ARG TAG_VUNIT="551314bfcf9268dad7aa71c064c36673d6f40241"
-ARG TAG_DR="bf4df645bd13ed3ee4a777999f09b0b5cd3077d2"
-#ARG TAG_MAMBO=
 
 #
 # Build GHDL
@@ -37,7 +35,7 @@ RUN git clone https://github.com/ghdl/ghdl && cd ghdl \
  && mv ghdl-llvm-fPIC.tgz /tmp
 
 #
-# GHDL and VUnit
+# Install GHDL and VUnit
 #
 
 FROM $IMAGE AS base
@@ -69,68 +67,3 @@ RUN tar -xzf /tmp/ghdl.tgz -C /usr/local \
  && pip3 install -r /opt/vunit/requirements.txt
 
 ENV PYTHONPATH=/opt/vunit
-
-#
-# Add MAMBO dependencies to base
-#
-
-FROM base AS mambo
-
-#ARG TAG_MAMBO
-
-RUN apt update -qq \
- && DEBIAN_FRONTEND=noninteractive apt -y install --no-install-recommends \
-   libelf-dev \
-   ruby \
- && apt autoclean && apt clean && apt -y autoremove
-
-#
-# Add DynamoRIO to base
-#
-
-FROM base AS dr
-
-ARG TAG_DR
-
-RUN apt update \
- && DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends \
-   cmake \
-   gcc \
-   g++-6 \
-   doxygen \
-   transfig \
-   imagemagick \
-   ghostscript \
- && apt autoclean && apt clean && apt -y autoremove \
- && rm /usr/bin/gcc \
- && ln -s /usr/bin/gcc-6 /usr/bin/gcc \
- && ln -s /usr/bin/g++-6 /usr/bin/g++ \
- && git clone https://github.com/DynamoRIO/dynamorio /opt/dynamorio && cd /opt/dynamorio \
- && git checkout -b dbhi "$TAG_DR" \
- && mkdir build && cd build \
- && cmake .. && make -j
-
-ENV DYNAMORIO_HOME /opt/dynamorio/build/
-
-#
-# Build Verilator
-#
-
-FROM base AS build-verilator
-
-# Verilator (version 3.9+ required, in general apt-get will give 3.8)
-RUN apt update && apt install -y \
-  autoconf \
-  g++ \
-  flex \
-  bison
-
-RUN mkdir -p $WORKDIR/tools && cd $WORKDIR/tools \
- && git clone http://git.veripool.org/git/verilator \
- && cd verilator \
- && unset VERILATOR_ROOT \
- && autoconf \
- && ./configure --prefix="/usr/local/"\
- && make -j$(nproc) \
- && make install DESTDIR="$(pwd)/install-verilator" \
- && mv install-verilator/usr/local /tmp/verilator

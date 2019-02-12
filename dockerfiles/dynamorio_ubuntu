@@ -1,0 +1,27 @@
+ARG IMAGE="ubuntu:bionic"
+
+ARG TAG_DR="bf4df645bd13ed3ee4a777999f09b0b5cd3077d2"
+
+FROM $IMAGE
+
+ARG TAG_DR
+
+RUN apt update \
+ && DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends \
+   cmake \
+   gcc \
+   g++-6 \
+   doxygen \
+   transfig \
+   imagemagick \
+   ghostscript \
+ && apt autoclean && apt clean && apt -y autoremove \
+ && rm /usr/bin/gcc \
+ && ln -s /usr/bin/gcc-6 /usr/bin/gcc \
+ && ln -s /usr/bin/g++-6 /usr/bin/g++ \
+ && git clone https://github.com/DynamoRIO/dynamorio /opt/dynamorio && cd /opt/dynamorio \
+ && git checkout -b dbhi "$TAG_DR" \
+ && mkdir build && cd build \
+ && cmake .. && make -j
+
+ENV DYNAMORIO_HOME /opt/dynamorio/build/

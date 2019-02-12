@@ -170,34 +170,34 @@ build () {
     arch="$1"
   fi
 
-  DFILE="dockerfiles/dbhi_ubuntu"
   SLUG="aptman/dbhi:bionic"
 
   case $arch in
     "aarch32"|"armv7l")
       IMG="arm32v7/ubuntu:bionic"
 
-      docker build --build-arg IMAGE="$IMG" -t "${SLUG}-aarch32" -f "$DFILE" --target base .
-      docker build --build-arg IMAGE="$IMG" -t "${SLUG}-mambo-aarch32" -f "$DFILE" --target mambo .
-      docker build --build-arg IMAGE="$IMG" -t "${SLUG}-dr-aarch32" -f "$DFILE" --target dr .
+      docker build --build-arg IMAGE="$IMG" -t "${SLUG}-aarch32" -f dockerfiles/main_ubuntu .
+      docker build --build-arg IMAGE="$IMG" -t "${SLUG}-mambo-aarch32" -f dockerfiles/mambo_ubuntu .
+      docker build --build-arg IMAGE="$IMG" -t "${SLUG}-dr-aarch32" -f dockerfiles/dynamorio_ubuntu .
+      #docker build --build-arg IMAGE="$IMG" -t "${SLUG}-spinal-aarch32" -f dockerfiles/spinal_ubuntu .
       ;;
     "aarch64")
       IMG="arm64v8/ubuntu:bionic"
 
-      docker build --build-arg IMAGE="$IMG" -t "${SLUG}-aarch64" -f "$DFILE" --target base .
-      docker build --build-arg IMAGE="$IMG" -t "${SLUG}-mambo-aarch64" -f "$DFILE" --target mambo .
-      docker build --build-arg IMAGE="$IMG" -t "${SLUG}-dr-aarch64" -f "$DFILE" --target dr .
-      #docker build -t aptman/dbhi:bionic-spinal-aarch64 -f "$DFILE" --build-arg IMAGE="arm64v8/ubuntu:bionic" --target spinal .
+      docker build --build-arg IMAGE="$IMG" -t "${SLUG}-aarch64" -f dockerfiles/main_ubuntu .
+      docker build --build-arg IMAGE="$IMG" -t "${SLUG}-mambo-aarch64" -f dockerfiles/mambo_ubuntu .
+      docker build --build-arg IMAGE="$IMG" -t "${SLUG}-dr-aarch64" -f dockerfiles/dynamorio_ubuntu .
+      #docker build --build-arg IMAGE="$IMG" -t "${SLUG}-spinal-aarch64" -f dockerfiles/spinal_ubuntu .
       ;;
     "x86_64"*)
       IMG="ubuntu:bionic"
 
       travis_start "base" "DOCKER build" "aptman/dbhi:bionic-amd64"
-      docker build --build-arg IMAGE="$IMG" -t "${SLUG}-amd64" -f "$DFILE" --target base .
+      docker build --build-arg IMAGE="$IMG" -t "${SLUG}-amd64" -f dockerfiles/main_ubuntu .
       travis_finish "base"
 
       travis_start "dr" "DOCKER build" "aptman/dbhi:bionic-dr-amd64"
-      docker build --build-arg IMAGE="$IMG" -t "${SLUG}-dr-amd64" -f "$DFILE" --target dr .
+      docker build --build-arg IMAGE="$IMG" -t "${SLUG}-dr-amd64" -f dockerfiles/dynamorio_ubuntu .
       travis_finish "dr"
 
       travis_start "gRPC" "DOCKER build" "aptman/dbhi:stretch-gRPC-amd64"
