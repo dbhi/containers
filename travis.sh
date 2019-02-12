@@ -24,8 +24,12 @@ enable_color
 
 #---
 
-travis_start () {}
-travis_finish () {}
+travis_start () {
+  :
+}
+travis_finish () {
+  :
+}
 
 [ -n "$TRAVIS" ] && {
   # This is a trimmed down copy of
