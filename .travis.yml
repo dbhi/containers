@@ -7,11 +7,59 @@ install: skip
 #  apt:
 #    packages:
 #    - pass
-script: "./travis.sh -b"
-deploy:
-  provider: script
-  skip_cleanup: true
-  script: "./travis.sh -p"
-  on:
-    repo: umarcor/dbhi
-    branch: docker
+
+stages:
+  - test
+  - ext
+  - publish
+
+jobs:
+  include:
+    - &build
+      env:
+        - TARGET_ARCHS=aarch64
+        - IMAGES="main mambo"
+      before_script: docker run --rm --privileged aptman/qus -s -- -r ALL -p $TARGET_ARCHS
+      script: ./travis.sh -b $IMAGES
+      deploy: &script
+        provider: script
+        skip_cleanup: true
+        script: ./travis.sh -p $IMAGES
+        on:
+          repo: umarcor/dbhi
+          branch: docker
+    - <<: *build
+      env:
+        - TARGET_ARCHS=amd64
+        - IMAGES=ALL
+      before_script: skip
+    - <<: *build
+      env:
+        - TARGET_ARCHS=arm
+        - IMAGES="main mambo"
+    - stage: ext
+      <<: *build
+      env:
+        - TARGET_ARCHS=aarch64
+        - IMAGES="dr"
+    - stage: ext
+      <<: *build
+      env:
+        - TARGET_ARCHS=arm
+        - IMAGES="dr"
+    - stage: ext
+      <<: *build
+      env:
+        - TARGET_ARCHS=aarch64
+        - IMAGES="gtkwave"
+    - stage: ext
+      <<: *build
+      env:
+        - TARGET_ARCHS=arm
+        - IMAGES="gtkwave"
+    - stage: publish
+      env: MANIFESTS=
+      script: skip
+      deploy:
+        <<: *script
+        script: ./travis.sh -m

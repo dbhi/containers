@@ -105,43 +105,111 @@ dockerLogin () {
 #---
 
 push () {
-  mkdir -p ~/.docker
-  echo '{"experimental": "enabled"}' > ~/.docker/config.json
+  imgs="ALL"
+  if [ $# -ne 0 ] && [ "x$1" != "xALL" ]; then
+    imgs="$@"
+  fi
+
   getDockerCredentialPass
   dockerLogin
 
   DBHI_IMAGE="aptman/dbhi:bionic"
 
-  travis_start "base" "DOCKER push" "${DBHI_IMAGE}-amd64"
-  docker push "${DBHI_IMAGE}-amd64"
-  travis_finish "base"
+  for arch in $TARGET_ARCHS; do
+    case $arch in
+      aarch64|aarch32|armv7l|arm)
+        if [ "x$imgs" = "xALL" ]; then
+          imgs="main mambo dr gtkwave"
+        fi
+        case $arch in
+          aarch64) arch="aarch64" ;;
+          *)       arch="aarch32"
+        esac
+        for i in $imgs; do
+          case $i in
+            main|base)
+              travis_start "base" "DOCKER push" "${DBHI_IMAGE}-$arch"
+              docker push "${DBHI_IMAGE}-$arch"
+              travis_finish "base"
+            ;;
+            mambo)
+              travis_start "mambo" "DOCKER push" "${DBHI_IMAGE}-mambo-$arch"
+              docker push "${DBHI_IMAGE}-mambo-$arch"
+              travis_finish "mambo"
+            ;;
+            dr|dynamorio)
+              travis_start "dr" "DOCKER push" "${DBHI_IMAGE}-dr-$arch"
+              docker push "${DBHI_IMAGE}-dr-$arch"
+              travis_finish "dr"
+            ;;
+            gtkwave)
+              travis_start "gtkwave" "DOCKER push" "${DBHI_IMAGE}-gtkwave-$arch"
+              docker push "${DBHI_IMAGE}-gtkwave-$arch"
+              travis_finish "gtkwave"
+            ;;
+            grpc|gRPC|spinal)
+              echo "Image <$i> not supported for arch <$arch> yet."
+              exit 1
+            ;;
+            *)
+              echo "Unknown image <$i> for host arch <$arch>"
+              exit 1
+          esac
+        done
+      ;;
+      x86_64|amd64)
+        travis_start "base" "DOCKER push" "${DBHI_IMAGE}-amd64"
+        docker push "${DBHI_IMAGE}-amd64"
+        travis_finish "base"
 
-  travis_start "dr" "DOCKER push" "${DBHI_IMAGE}-dr-amd64"
-  docker push "${DBHI_IMAGE}-dr-amd64"
-  travis_finish "dr"
+        travis_start "dr" "DOCKER push" "${DBHI_IMAGE}-dr-amd64"
+        docker push "${DBHI_IMAGE}-dr-amd64"
+        travis_finish "dr"
 
-  travis_start "gRPC" "DOCKER push" "aptman/dbhi:stretch-gRPC-amd64"
-  docker push "aptman/dbhi:stretch-gRPC-amd64"
-  travis_finish "gRPC"
+        travis_start "gRPC" "DOCKER push" "aptman/dbhi:stretch-gRPC-amd64"
+        docker push "aptman/dbhi:stretch-gRPC-amd64"
+        travis_finish "gRPC"
 
-  travis_start "gtkwave" "DOCKER push" "${DBHI_IMAGE}-gtkwave-amd64"
-  docker push "${DBHI_IMAGE}-gtkwave-amd64"
-  travis_finish "gtkwave"
+        travis_start "gtkwave" "DOCKER push" "${DBHI_IMAGE}-gtkwave-amd64"
+        docker push "${DBHI_IMAGE}-gtkwave-amd64"
+        travis_finish "gtkwave"
 
-  travis_start "spinal" "DOCKER push" "${DBHI_IMAGE}-spinal-amd64"
-  docker push "${DBHI_IMAGE}-spinal-amd64"
-  travis_finish "spinal"
+        travis_start "spinal" "DOCKER push" "${DBHI_IMAGE}-spinal-amd64"
+        docker push "${DBHI_IMAGE}-spinal-amd64"
+        travis_finish "spinal"
+      ;;
+      *)
+        echo "Unknown arch $arch..."
+        exit 1
+    esac
+  done
+
+  docker logout
+}
+
+#---
+
+manifests () {
+  if [ -n "$TRAVIS" ]; then
+    mkdir -p ~/.docker
+    echo '{"experimental": "enabled"}' > ~/.docker/config.json
+  fi
+
+  getDockerCredentialPass
+  dockerLogin
 
 # https://github.com/docker/cli/issues/954
 
   docker manifest create -a "$DBHI_IMAGE" \
     "$DBHI_IMAGE"-amd64 \
-    "$DBHI_IMAGE"-aarch64
+    "$DBHI_IMAGE"-aarch64 \
+    "$DBHI_IMAGE"-aarch32
   docker manifest push --purge "$DBHI_IMAGE"
 
   docker manifest create -a "$DBHI_IMAGE"-dr \
     "$DBHI_IMAGE"-dr-amd64 \
-    "$DBHI_IMAGE"-dr-aarch64
+    "$DBHI_IMAGE"-dr-aarch64 \
+    "$DBHI_IMAGE"-dr-aarch32
   docker manifest push --purge "$DBHI_IMAGE"-dr
 
   docker manifest create -a "aptman/dbhi:stretch-gRPC" \
@@ -149,7 +217,9 @@ push () {
   docker manifest push --purge "aptman/dbhi:stretch-gRPC"
 
   docker manifest create -a "$DBHI_IMAGE"-gtkwave \
-    "$DBHI_IMAGE"-gtkwave-amd64
+    "$DBHI_IMAGE"-gtkwave-amd64 \
+    "$DBHI_IMAGE"-gtkwave-aarch64 \
+    "$DBHI_IMAGE"-gtkwave-aarch32
   docker manifest push --purge "$DBHI_IMAGE"-gtkwave
 
   docker manifest create -a "$DBHI_IMAGE"-spinal \
@@ -162,68 +232,126 @@ push () {
 #---
 
 build () {
-  arch="$(uname -m)"
-
-  if [ "$1" != "" ]; then
-    arch="$1"
+  imgs="ALL"
+  if [ $# -ne 0 ] && [ "x$1" != "xALL" ]; then
+    imgs="$@"
   fi
 
   SLUG="aptman/dbhi:bionic"
 
-  case $arch in
-    "aarch32"|"armv7l")
-      IMG="arm32v7/ubuntu:bionic"
-
-      docker build --build-arg IMAGE="$IMG" -t "${SLUG}-aarch32" -f dockerfiles/main_ubuntu .
-      docker build --build-arg IMAGE="$IMG" -t "${SLUG}-mambo-aarch32" -f dockerfiles/mambo_ubuntu .
-      docker build --build-arg IMAGE="$IMG" -t "${SLUG}-dr-aarch32" -f dockerfiles/dynamorio_ubuntu .
-      #docker build --build-arg IMAGE="$IMG" -t "${SLUG}-spinal-aarch32" -f dockerfiles/spinal_ubuntu .
+  for arch in $TARGET_ARCHS; do
+    case $arch in
+      aarch64|aarch32|armv7l|arm)
+        if [ "x$imgs" = "xALL" ]; then
+          imgs="main mambo dr gtkwave"
+        fi
+        case $arch in
+          aarch64)
+            arch="aarch64"
+            IMG="arm64v8/ubuntu:bionic"
+          ;;
+          *)
+            arch="aarch32"
+            IMG="arm32v7/ubuntu:bionic"
+        esac
+        for i in $imgs; do
+          case $i in
+            main|base)
+              travis_start "base" "DOCKER build" "aptman/dbhi:bionic-$arch"
+              docker build --build-arg IMAGE="$IMG" -t "${SLUG}-$arch" -f dockerfiles/main_ubuntu .
+              travis_finish "base"
+            ;;
+            mambo)
+              travis_start "mambo" "DOCKER build" "aptman/dbhi:bionic-mambo-$arch"
+              docker build --build-arg IMAGE="${SLUG}-$arch" -t "${SLUG}-mambo-$arch" -f dockerfiles/mambo_ubuntu .
+              travis_finish "mambo"
+            ;;
+            dr|dynamorio)
+              travis_start "dr" "DOCKER build" "aptman/dbhi:bionic-dr-$arch"
+              docker build --build-arg IMAGE="${SLUG}-$arch" -t "${SLUG}-dr-$arch" -f dockerfiles/dynamorio_ubuntu .
+              travis_finish "dr"
+            ;;
+            gtkwave)
+              travis_start "gtkwave" "DOCKER build" "aptman/dbhi:bionic-gtkwave-$arch"
+              docker build --build-arg IMAGE="$IMG" -t "${SLUG}-gtkwave-$arch" -f dockerfiles/gtkwave_ubuntu .
+              travis_finish "gtkwave"
+            ;;
+            grpc|gRPC|spinal)
+              echo "Image <$i> not supported for arch <$arch> yet."
+              exit 1
+              #docker build --build-arg IMAGE="$IMG" -t "${SLUG}-spinal-$arch" -f dockerfiles/spinal_ubuntu .
+            ;;
+            *)
+              echo "Unknown image <$i> for host arch <$arch>"
+              exit 1
+          esac
+        done
       ;;
-    "aarch64")
-      IMG="arm64v8/ubuntu:bionic"
-
-      docker build --build-arg IMAGE="$IMG" -t "${SLUG}-aarch64" -f dockerfiles/main_ubuntu .
-      docker build --build-arg IMAGE="$IMG" -t "${SLUG}-mambo-aarch64" -f dockerfiles/mambo_ubuntu .
-      docker build --build-arg IMAGE="$IMG" -t "${SLUG}-dr-aarch64" -f dockerfiles/dynamorio_ubuntu .
-      #docker build --build-arg IMAGE="$IMG" -t "${SLUG}-spinal-aarch64" -f dockerfiles/spinal_ubuntu .
+      x86_64|amd64)
+        IMG="ubuntu:bionic"
+        if [ "x$imgs" = "xALL" ]; then
+          imgs="main dr gRPC gtkwave spinal"
+        fi
+        for i in $imgs; do
+          case $i in
+            main|base)
+              travis_start "base" "DOCKER build" "aptman/dbhi:bionic-amd64"
+              docker build --build-arg IMAGE="$IMG" -t "${SLUG}-amd64" -f dockerfiles/main_ubuntu .
+              travis_finish "base"
+            ;;
+            dr|dynamorio)
+              travis_start "dr" "DOCKER build" "aptman/dbhi:bionic-dr-amd64"
+              docker build --build-arg IMAGE="${SLUG}-amd64" -t "${SLUG}-dr-amd64" -f dockerfiles/dynamorio_ubuntu .
+              travis_finish "dr"
+            ;;
+            grpc|gRPC)
+              travis_start "gRPC" "DOCKER build" "aptman/dbhi:stretch-gRPC-amd64"
+              docker build -t aptman/dbhi:stretch-gRPC-amd64 -f dockerfiles/gRPC_stretch .
+              travis_finish "gRPC"
+            ;;
+            gtkwave)
+              travis_start "gtkwave" "DOCKER build" "aptman/dbhi:bionic-gtkwave-amd64"
+              docker build --build-arg IMAGE="$IMG" -t "${SLUG}-gtkwave-amd64" -f dockerfiles/gtkwave_ubuntu .
+              travis_finish "gtkwave"
+            ;;
+            spinal)
+              travis_start "spinal" "DOCKER build" "aptman/dbhi:bionic-spinal-amd64"
+              docker build --build-arg IMAGE="$IMG" -t "${SLUG}-spinal-amd64" -f dockerfiles/spinal_ubuntu .
+              travis_finish "spinal"
+            ;;
+            mambo)
+              echo "Image <$i> not supported for arch <$arch> yet."
+            ;;
+            *)
+              echo "Unknown image <$i> for host arch <$arch>"
+              exit 1
+          esac
+        done
       ;;
-    "x86_64"*)
-      IMG="ubuntu:bionic"
-
-      travis_start "base" "DOCKER build" "aptman/dbhi:bionic-amd64"
-      docker build --build-arg IMAGE="$IMG" -t "${SLUG}-amd64" -f dockerfiles/main_ubuntu .
-      travis_finish "base"
-
-      travis_start "dr" "DOCKER build" "aptman/dbhi:bionic-dr-amd64"
-      docker build --build-arg IMAGE="$IMG" -t "${SLUG}-dr-amd64" -f dockerfiles/dynamorio_ubuntu .
-      travis_finish "dr"
-
-      travis_start "gRPC" "DOCKER build" "aptman/dbhi:stretch-gRPC-amd64"
-      docker build -t aptman/dbhi:stretch-gRPC-amd64 -f dockerfiles/gRPC_stretch .
-      travis_finish "gRPC"
-
-      travis_start "gtkwave" "DOCKER build" "aptman/dbhi:bionic-gtkwave-amd64"
-      docker build --build-arg IMAGE="$IMG" -t "${SLUG}-gtkwave-amd64" -f dockerfiles/gtkwave_ubuntu .
-      travis_finish "gtkwave"
-
-      travis_start "spinal" "DOCKER build" "aptman/dbhi:bionic-spinal-amd64"
-      docker build --build-arg IMAGE="$IMG" -t "${SLUG}-spinal-amd64" -f dockerfiles/spinal_ubuntu .
-      travis_finish "spinal"
-      ;;
-    *)
-      echo "Unknown arch $arch..."
-      ;;
-  esac
+      *)
+        echo "Unknown arch $arch..."
+        exit 1
+    esac
+  done
 }
 
 #---
 
+if [ -z "$TARGET_ARCHS" ]; then
+  TARGET_ARCHS="$(uname -m)"
+fi
+
 case "$1" in
   "-b")
-    build $2
+    shift
+    build "$@"
   ;;
   "-p")
-    push
+    shift
+    push "$@"
+  ;;
+  "-m")
+    manifests
   ;;
   *)
     echo "Unknown arg <$1>"
