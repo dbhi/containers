@@ -31,7 +31,7 @@ travis_finish () {
   :
 }
 
-[ -n "$TRAVIS" ] && {
+if [ -n "$TRAVIS" ]; then
   # This is a trimmed down copy of
   # https://github.com/travis-ci/travis-build/blob/master/lib/travis/build/templates/header.sh
   travis_time_start() {
@@ -66,42 +66,40 @@ travis_finish () {
     travis_time_finish
     echo "travis_fold:end:$1"
   }
-
-}
+fi
 
 #--
 
 getDockerCredentialPass () {
-  PASS_URL="$(curl -s https://api.github.com/repos/docker/docker-credential-helpers/releases/latest | grep "browser_download_url.*pass-.*-amd64" | sed 's/.* "\(.*\)"/\1/g')"
-  [ "$(echo "$PASS_URL" | cut -c1-5)" != "https" ] && { PASS_URL="https://github.com/docker/docker-credential-helpers/releases/download/v0.6.0/docker-credential-pass-v0.6.0-amd64.tar.gz"; }
-  echo "PASS_URL: $PASS_URL"
-  curl -fsSL "$PASS_URL" | tar xv
-  chmod + $(pwd)/docker-credential-pass
+:
+#  PASS_URL="$(curl -s https://api.github.com/repos/docker/docker-credential-helpers/releases/latest | grep "browser_download_url.*pass-.*-amd64" | sed 's/.* "\(.*\)"/\1/g')"
+#  [ "$(echo "$PASS_URL" | cut -c1-5)" != "https" ] && { PASS_URL="https://github.com/docker/docker-credential-helpers/releases/download/v0.6.0/docker-credential-pass-v0.6.0-amd64.tar.gz"; }
+#  echo "PASS_URL: $PASS_URL"
+#  curl -fsSL "$PASS_URL" | tar xv
+#  chmod + $(pwd)/docker-credential-pass
 }
 
 #---
 
 dockerLogin () {
-  if [ "$CI" = "true" ]; then
-    gpg --batch --gen-key <<-EOF
-%echo Generating a standard key
-Key-Type: DSA
-Key-Length: 1024
-Subkey-Type: ELG-E
-Subkey-Length: 1024
-Name-Real: DBHI
-Name-Email: umarcor/dbhi@github
-Expire-Date: 0
-# Do a commit here, so that we can later print "done" :-)
-%commit
-%echo done
-EOF
-
-    key=$(gpg --no-auto-check-trustdb --list-secret-keys | grep ^sec | cut -d/ -f2 | cut -d" " -f1)
-    pass init $key
-
-    echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-  fi
+#  if [ "$CI" = "true" ]; then
+#    gpg --batch --gen-key <<-EOF
+#%echo Generating a standard key
+#Key-Type: DSA
+#Key-Length: 1024
+#Subkey-Type: ELG-E
+#Subkey-Length: 1024
+#Name-Real: DBHI
+#Name-Email: umarcor/dbhi@github
+#Expire-Date: 0
+## Do a commit here, so that we can later print "done" :-)
+#%commit
+#%echo done
+#EOF
+#    key=$(gpg --no-auto-check-trustdb --list-secret-keys | grep ^sec | cut -d/ -f2 | cut -d" " -f1)
+#    pass init $key
+#  fi
+  echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
 }
 
 #---
