@@ -19,9 +19,13 @@ RUN apt update \
  && rm /usr/bin/gcc \
  && ln -s /usr/bin/gcc-6 /usr/bin/gcc \
  && ln -s /usr/bin/g++-6 /usr/bin/g++ \
- && git clone https://github.com/DynamoRIO/dynamorio /opt/dynamorio && cd /opt/dynamorio \
- && git checkout -b dbhi "$TAG_DR" \
- && mkdir build && cd build \
- && cmake .. && make -j
+ && git clone -b dbhi https://github.com/umarcor/dynamorio /tmp/dynamorio && cd /tmp/dynamorio \
+ && mkdir /opt/dynamorio && cd /opt/dynamorio \
+ && cmake /tmp/dynamorio && make -j2 \
+ && rm -rf /tmp/dynamorio
 
-ENV DYNAMORIO_HOME /opt/dynamorio/build/
+ENV DYNAMORIO_HOME /opt/dynamorio/
+
+# ATM, the upstream master branch fails because of DynamoRIO/dynamorio#3382 (see also DynamoRIO/dynamorio#3399)
+# While it is being merged, a fork is used (branch 'dbhi' from umarcor/dynamorio)
+# && git checkout -b dbhi "$TAG_DR" \
