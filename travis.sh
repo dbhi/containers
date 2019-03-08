@@ -113,8 +113,6 @@ push () {
   getDockerCredentialPass
   dockerLogin
 
-  DBHI_IMAGE="aptman/dbhi:bionic"
-
   for arch in $TARGET_ARCHS; do
     case $arch in
       aarch64|aarch32|armv7l|arm)
@@ -340,6 +338,8 @@ build () {
 if [ -z "$TARGET_ARCHS" ]; then
   TARGET_ARCHS="$(uname -m)"
 fi
+
+DBHI_IMAGE="aptman/dbhi:bionic"
 
 case "$1" in
   "-b")
