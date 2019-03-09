@@ -1,6 +1,6 @@
 ARG IMAGE="ubuntu:bionic"
 
-ARG TAG_GHDL="50da90f509aa6de2961f1795af0be2452bc2c6d9"
+ARG TAG_GHDL="823147f26c65ed8079803f302d4bd96b162b378d"
 ARG TAG_VUNIT="551314bfcf9268dad7aa71c064c36673d6f40241"
 
 #
@@ -29,8 +29,6 @@ RUN apt-get update -qq \
 
 RUN git clone https://github.com/ghdl/ghdl && cd ghdl \
  && git checkout -b dbhi "$TAG_GHDL" \
- && sed -i.bak 's/\(^make\) \(-j$(nproc) 2>make_err\.log\)/\1 LIB_CFLAGS="$LIB_CFLAGS" OPT_FLAGS="$OPT_FLAGS" \2/g' ./dist/travis/build.sh \
- && rm ./dist/travis/build.sh.bak \
  && OPT_FLAGS=-fPIC LIB_CFLAGS=-fPIC ./dist/travis/build.sh -b llvm-6.0 -p ghdl-llvm-fPIC \
  && mv ghdl-llvm-fPIC.tgz /tmp
 
