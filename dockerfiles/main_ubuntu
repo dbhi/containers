@@ -19,8 +19,7 @@ RUN apt-get update -qq \
       clang-6.0 \
       gcc \
       git \
-      gnat-8 \
-      libstdc++-8-dev \
+      gnat \
       llvm-6.0-dev \
       make \
       zlib1g-dev \

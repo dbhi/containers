@@ -1,6 +1,6 @@
 ARG IMAGE="ubuntu:bionic"
 
-ARG TAG_DR="bf4df645bd13ed3ee4a777999f09b0b5cd3077d2"
+ARG TAG_DR="f3e0ca241382cdb86fd087072d7430648ed9492f"
 
 FROM $IMAGE
 
@@ -9,23 +9,12 @@ ARG TAG_DR
 RUN apt update \
  && DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends \
    cmake \
-   gcc \
-   g++-6 \
-   doxygen \
-   transfig \
-   imagemagick \
-   ghostscript \
+   g++ \
  && apt autoclean && apt clean && apt -y autoremove \
- && rm /usr/bin/gcc \
- && ln -s /usr/bin/gcc-6 /usr/bin/gcc \
- && ln -s /usr/bin/g++-6 /usr/bin/g++ \
- && git clone -b dbhi https://github.com/umarcor/dynamorio /tmp/dynamorio && cd /tmp/dynamorio \
+ && mkdir -p /tmp/dynamorio && cd /tmp/dynamorio \
+ && curl -fsSL https://codeload.github.com/dynamorio/dynamorio/tar.gz/$TAG_DR | tar xzf - --strip-components=1 \
  && mkdir /opt/dynamorio && cd /opt/dynamorio \
  && cmake /tmp/dynamorio && make -j2 \
  && rm -rf /tmp/dynamorio
 
 ENV DYNAMORIO_HOME /opt/dynamorio/
-
-# ATM, the upstream master branch fails because of DynamoRIO/dynamorio#3382 (see also DynamoRIO/dynamorio#3399)
-# While it is being merged, a fork is used (branch 'dbhi' from umarcor/dynamorio)
-# && git checkout -b dbhi "$TAG_DR" \
