@@ -42,6 +42,7 @@ ARG TAG_VUNIT
 RUN apt update -qq \
   && DEBIAN_FRONTEND=noninteractive apt -y install --no-install-recommends \
       ca-certificates \
+      curl \
       gcc \
       git \
       libgnat-8 \
