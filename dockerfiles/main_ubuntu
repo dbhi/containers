@@ -11,14 +11,12 @@ FROM $IMAGE AS build-base
 
 ARG TAG_GHDL
 
-WORKDIR /work
-
 RUN apt-get update -qq \
   && DEBIAN_FRONTEND=noninteractive apt-get -y install --no-install-recommends \
       ca-certificates \
       clang-6.0 \
+      curl \
       gcc \
-      git \
       gnat \
       llvm-6.0-dev \
       make \
@@ -26,10 +24,26 @@ RUN apt-get update -qq \
   && apt-get autoclean && apt-get clean && apt-get -y autoremove \
   && update-ca-certificates
 
-RUN git clone https://github.com/ghdl/ghdl && cd ghdl \
- && git checkout -b dbhi "$TAG_GHDL" \
+RUN mkdir -p /tmp/ghdl && cd /tmp/ghdl \
+ && curl -fsSL https://codeload.github.com/ghdl/ghdl/tar.gz/$TAG_GHDL | tar xzf - --strip-components=1 \
  && OPT_FLAGS=-fPIC LIB_CFLAGS=-fPIC ./dist/travis/build.sh -b llvm-6.0 -p ghdl-llvm-fPIC \
  && mv ghdl-llvm-fPIC.tgz /tmp
+
+#
+# Get VUnit
+#
+
+FROM $IMAGE AS get-vunit
+
+ARG TAG_VUNIT
+
+RUN apt-get update -qq \
+  && DEBIAN_FRONTEND=noninteractive apt-get -y install --no-install-recommends \
+      ca-certificates \
+      git \
+ && git clone --recurse-submodule https://github.com/vunit/vunit /opt/vunit && cd /opt/vunit \
+ && git checkout -b dbhi "$TAG_VUNIT" \
+ && rm -rf .git
 
 #
 # Install GHDL and VUnit
@@ -37,14 +51,11 @@ RUN git clone https://github.com/ghdl/ghdl && cd ghdl \
 
 FROM $IMAGE AS base
 
-ARG TAG_VUNIT
-
 RUN apt update -qq \
   && DEBIAN_FRONTEND=noninteractive apt -y install --no-install-recommends \
       ca-certificates \
       curl \
       gcc \
-      git \
       libgnat-8 \
       libllvm6.0 \
       make \
@@ -56,12 +67,10 @@ RUN apt update -qq \
   && update-ca-certificates
 
 COPY --from=build-base /tmp/ghdl-llvm-fPIC.tgz /tmp/ghdl.tgz
+COPY --from=get-vunit /opt/vunit/ /opt/vunit
 
 RUN tar -xzf /tmp/ghdl.tgz -C /usr/local \
  && rm -f /tmp/* \
- && git clone --recurse-submodule https://github.com/vunit/vunit /opt/vunit && cd /opt/vunit \
- && git checkout -b dbhi "$TAG_VUNIT" \
- && rm -rf .git \
  && pip3 install -r /opt/vunit/requirements.txt
 
 ENV PYTHONPATH=/opt/vunit
