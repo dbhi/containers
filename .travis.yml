@@ -19,7 +19,9 @@ jobs:
       env:
         - TARGET_ARCHS=aarch64
         - IMAGES="main mambo"
-      before_script: docker run --rm --privileged aptman/qus -s -- -r ALL -p $TARGET_ARCHS
+      before_script:
+        - docker run --rm --privileged aptman/qus -- -r
+        - docker run --rm --privileged aptman/qus -s -- -p $TARGET_ARCHS
       script: ./travis.sh -b $IMAGES
       deploy: &script
         provider: script
