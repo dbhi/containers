@@ -26,8 +26,8 @@ jobs:
         skip_cleanup: true
         script: ./travis.sh -p $IMAGES
         on:
-          repo: umarcor/dbhi
-          branch: docker
+          repo: dbhi/docker
+          branch: master
     - <<: *build
       env:
         - TARGET_ARCHS=amd64

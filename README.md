@@ -1,4 +1,4 @@
-# Dynamic Binary Hardware Injection (DBHI)
+# [DBHI] Dynamic Binary Hardware Injection: docker images
 
 This repository contains containerized open and free development tools for decoupled functional hardware-software co-design on SoCs with FPGA, through injection of compiled HDL designs using binary modification.
 
