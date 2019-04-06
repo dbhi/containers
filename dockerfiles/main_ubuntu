@@ -56,7 +56,7 @@ RUN apt update -qq \
       ca-certificates \
       curl \
       gcc \
-      libgnat-8 \
+      libgnat-7 \
       libllvm6.0 \
       make \
       python3 \
