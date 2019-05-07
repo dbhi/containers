@@ -1,6 +1,6 @@
 ARG IMAGE="ubuntu:bionic"
 
-ARG TAG_GHDL="221abeb379c1c488c3b3bcda2dbb99a977ac90e9"
+ARG TAG_GHDL="34666ab2dc542936871357d4fe6f54600c5aa325"
 ARG TAG_VUNIT="551314bfcf9268dad7aa71c064c36673d6f40241"
 
 #
@@ -26,7 +26,7 @@ RUN apt-get update -qq \
 
 RUN mkdir -p /tmp/ghdl && cd /tmp/ghdl \
  && curl -fsSL https://codeload.github.com/ghdl/ghdl/tar.gz/$TAG_GHDL | tar xzf - --strip-components=1 \
- && OPT_FLAGS=-fPIC LIB_CFLAGS=-fPIC ./dist/travis/build.sh -b llvm-6.0 -p ghdl-llvm-fPIC \
+ && CONFIG_OPTS="--default-pic " ./dist/travis/build.sh -b llvm-6.0 -p ghdl-llvm-fPIC \
  && mv ghdl-llvm-fPIC.tgz /tmp
 
 #
