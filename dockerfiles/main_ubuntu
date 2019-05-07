@@ -17,6 +17,7 @@ RUN apt-get update -qq \
       clang-6.0 \
       curl \
       gcc \
+      git \
       gnat \
       llvm-6.0-dev \
       make \

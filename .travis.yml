@@ -11,6 +11,8 @@ install: skip
 stages:
   - test
   - ext
+  - gui
+  - cosim
   - publish
 
 jobs:
@@ -59,6 +61,26 @@ jobs:
       env:
         - TARGET_ARCHS=arm
         - IMAGES="gtkwave"
+    - stage: gui
+      <<: *build
+      env:
+        - TARGET_ARCHS=aarch64
+        - IMAGES="gui"
+    - stage: gui
+      <<: *build
+      env:
+        - TARGET_ARCHS=arm
+        - IMAGES="gui"
+    - stage: cosim
+      <<: *build
+      env:
+        - TARGET_ARCHS=aarch64
+        - IMAGES="cosim"
+    - stage: cosim
+      <<: *build
+      env:
+        - TARGET_ARCHS=arm
+        - IMAGES="cosim"
     - stage: publish
       env: MANIFESTS=
       script: skip

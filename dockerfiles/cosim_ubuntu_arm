@@ -1,0 +1,14 @@
+ARG IMAGE="ubuntu:bionic-gtkwave"
+
+FROM $IMAGE
+
+RUN apt update -qq \
+ && DEBIAN_FRONTEND=noninteractive apt -y install --no-install-recommends \
+   dbus-x11 \
+   terminator \
+   libjpeg-dev \
+   libpython3-dev \
+   libtiff5-dev \
+   zlib1g-dev \
+ && pip3 install setuptools wheel \
+ && pip3 install flask Pillow numpy

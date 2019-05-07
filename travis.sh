@@ -117,7 +117,7 @@ push () {
     case $arch in
       aarch64|aarch32|armv7l|arm)
         if [ "x$imgs" = "xALL" ]; then
-          imgs="main mambo dr gtkwave"
+          imgs="main mambo dr gtkwave gui cosim"
         fi
         case $arch in
           aarch64) arch="aarch64" ;;
@@ -145,6 +145,16 @@ push () {
               docker push "${DBHI_IMAGE}-gtkwave-$arch"
               travis_finish "gtkwave"
             ;;
+            gui)
+              travis_start "gui" "DOCKER push" "${DBHI_IMAGE}-gui-$arch"
+              docker push "${DBHI_IMAGE}-gui-$arch"
+              travis_finish "gui"
+            ;;
+            cosim)
+              travis_start "cosim" "DOCKER push" "${DBHI_IMAGE}-cosim-$arch"
+              docker push "${DBHI_IMAGE}-cosim-$arch"
+              travis_finish "cosim"
+            ;;
             grpc|gRPC|spinal)
               echo "Image <$i> not supported for arch <$arch> yet."
               exit 1
@@ -171,6 +181,14 @@ push () {
         travis_start "gtkwave" "DOCKER push" "${DBHI_IMAGE}-gtkwave-amd64"
         docker push "${DBHI_IMAGE}-gtkwave-amd64"
         travis_finish "gtkwave"
+
+        travis_start "gui" "DOCKER push" "${DBHI_IMAGE}-gui-amd64"
+        docker push "${DBHI_IMAGE}-gui-amd64"
+        travis_finish "gui"
+
+        travis_start "cosim" "DOCKER push" "${DBHI_IMAGE}-cosim-amd64"
+        docker push "${DBHI_IMAGE}-cosim-amd64"
+        travis_finish "cosim"
 
         travis_start "spinal" "DOCKER push" "${DBHI_IMAGE}-spinal-amd64"
         docker push "${DBHI_IMAGE}-spinal-amd64"
@@ -220,6 +238,18 @@ manifests () {
     "$DBHI_IMAGE"-gtkwave-aarch32
   docker manifest push --purge "$DBHI_IMAGE"-gtkwave
 
+  docker manifest create -a "$DBHI_IMAGE"-gui \
+    "$DBHI_IMAGE"-gui-amd64 \
+    "$DBHI_IMAGE"-gui-aarch64 \
+    "$DBHI_IMAGE"-gui-aarch32
+  docker manifest push --purge "$DBHI_IMAGE"-gui
+
+  docker manifest create -a "$DBHI_IMAGE"-cosim \
+    "$DBHI_IMAGE"-cosim-amd64 \
+    "$DBHI_IMAGE"-cosim-aarch64 \
+    "$DBHI_IMAGE"-cosim-aarch32
+  docker manifest push --purge "$DBHI_IMAGE"-cosim
+
   docker manifest create -a "$DBHI_IMAGE"-spinal \
     "$DBHI_IMAGE"-spinal-amd64
   docker manifest push --purge "$DBHI_IMAGE"-spinal
@@ -241,7 +271,7 @@ build () {
     case $arch in
       aarch64|aarch32|armv7l|arm)
         if [ "x$imgs" = "xALL" ]; then
-          imgs="main mambo dr gtkwave"
+          imgs="main mambo dr gtkwave gui cosim"
         fi
         case $arch in
           aarch64)
@@ -255,24 +285,34 @@ build () {
         for i in $imgs; do
           case $i in
             main|base)
-              travis_start "base" "DOCKER build" "aptman/dbhi:bionic-$arch"
+              travis_start "base" "DOCKER build" "${SLUG}-$arch"
               docker build --build-arg IMAGE="$IMG" -t "${SLUG}-$arch" -f dockerfiles/main_ubuntu .
               travis_finish "base"
             ;;
             mambo)
-              travis_start "mambo" "DOCKER build" "aptman/dbhi:bionic-mambo-$arch"
+              travis_start "mambo" "DOCKER build" "${SLUG}-mambo-$arch"
               docker build --build-arg IMAGE="${SLUG}-$arch" -t "${SLUG}-mambo-$arch" -f dockerfiles/mambo_ubuntu .
               travis_finish "mambo"
             ;;
             dr|dynamorio)
-              travis_start "dr" "DOCKER build" "aptman/dbhi:bionic-dr-$arch"
+              travis_start "dr" "DOCKER build" "${SLUG}-dr-$arch"
               docker build --build-arg IMAGE="${SLUG}-$arch" -t "${SLUG}-dr-$arch" -f dockerfiles/dynamorio_ubuntu .
               travis_finish "dr"
             ;;
             gtkwave)
-              travis_start "gtkwave" "DOCKER build" "aptman/dbhi:bionic-gtkwave-$arch"
+              travis_start "gtkwave" "DOCKER build" "${SLUG}-gtkwave-$arch"
               docker build --build-arg IMAGE="$IMG" -t "${SLUG}-gtkwave-$arch" -f dockerfiles/gtkwave_ubuntu .
               travis_finish "gtkwave"
+            ;;
+            gui)
+              travis_start "gui" "DOCKER build" "${SLUG}-gui-$arch"
+              docker build --build-arg IMAGE="${SLUG}-$arch" -t "${SLUG}-gui-$arch" -f dockerfiles/gtkwave_ubuntu .
+              travis_finish "gui"
+            ;;
+            cosim)
+              travis_start "cosim" "DOCKER build" "${SLUG}-cosim-$arch"
+              docker build --build-arg IMAGE="${SLUG}-gui-$arch" -t "${SLUG}-cosim-$arch" -f dockerfiles/cosim_ubuntu_arm .
+              travis_finish "cosim"
             ;;
             grpc|gRPC|spinal)
               echo "Image <$i> not supported for arch <$arch> yet."
@@ -288,17 +328,17 @@ build () {
       x86_64|amd64)
         IMG="ubuntu:bionic"
         if [ "x$imgs" = "xALL" ]; then
-          imgs="main dr gRPC gtkwave spinal"
+          imgs="main dr gRPC gtkwave gui cosim spinal"
         fi
         for i in $imgs; do
           case $i in
             main|base)
-              travis_start "base" "DOCKER build" "aptman/dbhi:bionic-amd64"
+              travis_start "base" "DOCKER build" "${SLUG}-amd64"
               docker build --build-arg IMAGE="$IMG" -t "${SLUG}-amd64" -f dockerfiles/main_ubuntu .
               travis_finish "base"
             ;;
             dr|dynamorio)
-              travis_start "dr" "DOCKER build" "aptman/dbhi:bionic-dr-amd64"
+              travis_start "dr" "DOCKER build" "${SLUG}-dr-amd64"
               docker build --build-arg IMAGE="${SLUG}-amd64" -t "${SLUG}-dr-amd64" -f dockerfiles/dynamorio_ubuntu .
               travis_finish "dr"
             ;;
@@ -308,12 +348,22 @@ build () {
               travis_finish "gRPC"
             ;;
             gtkwave)
-              travis_start "gtkwave" "DOCKER build" "aptman/dbhi:bionic-gtkwave-amd64"
+              travis_start "gtkwave" "DOCKER build" "${SLUG}-gtkwave-amd64"
               docker build --build-arg IMAGE="$IMG" -t "${SLUG}-gtkwave-amd64" -f dockerfiles/gtkwave_ubuntu .
               travis_finish "gtkwave"
             ;;
+            gui)
+              travis_start "gui" "DOCKER build" "${SLUG}-gui-$arch"
+              docker build --build-arg IMAGE="${SLUG}-$arch" -t "${SLUG}-gui-$arch" -f dockerfiles/gtkwave_ubuntu .
+              travis_finish "gui"
+            ;;
+            cosim)
+              travis_start "cosim" "DOCKER build" "${SLUG}-cosim-$arch"
+              docker build --build-arg IMAGE="${SLUG}-gui-$arch" -t "${SLUG}-cosim-$arch" -f dockerfiles/cosim_ubuntu_amd64 .
+              travis_finish "cosim"
+            ;;
             spinal)
-              travis_start "spinal" "DOCKER build" "aptman/dbhi:bionic-spinal-amd64"
+              travis_start "spinal" "DOCKER build" "${SLUG}-spinal-amd64"
               docker build --build-arg IMAGE="$IMG" -t "${SLUG}-spinal-amd64" -f dockerfiles/spinal_ubuntu .
               travis_finish "spinal"
             ;;
