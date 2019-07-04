@@ -166,6 +166,10 @@ push () {
         done
       ;;
       x86_64|amd64)
+        travis_start "dev" "DOCKER push" aptman/dbhi:dev
+        docker push aptman/dbhi:dev
+        travis_finish "dev"
+
         travis_start "base" "DOCKER push" "${DBHI_IMAGE}-amd64"
         docker push "${DBHI_IMAGE}-amd64"
         travis_finish "base"
@@ -328,10 +332,15 @@ build () {
       x86_64|amd64)
         IMG="ubuntu:bionic"
         if [ "x$imgs" = "xALL" ]; then
-          imgs="main dr gRPC gtkwave gui cosim spinal"
+          imgs="main dr gRPC gtkwave gui cosim spinal dev"
         fi
         for i in $imgs; do
           case $i in
+            dev)
+              travis_start "dev" "DOCKER build" "aptman/dbhi:dev"
+              docker build --build-arg IMAGE="$IMG" -t aptman/dbhi:dev -f dockerfiles/dev_ubuntu .
+              travis_finish "dev"
+            ;;
             main|base)
               travis_start "base" "DOCKER build" "${SLUG}-amd64"
               docker build --build-arg IMAGE="$IMG" -t "${SLUG}-amd64" -f dockerfiles/main_ubuntu .

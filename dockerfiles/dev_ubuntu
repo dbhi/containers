@@ -1,0 +1,17 @@
+# winpty docker run --rm -itv /$(pwd)://src -w //src -p 8080:8080 aptman/dbhi:dev bash
+
+FROM ubuntu:bionic
+
+RUN apt-get update \
+ && apt-get install -y curl git gnupg2 \
+ && curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
+ && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list \
+ && apt-get update \
+ && apt-get install -y yarn \
+ && yarn global add @vue/cli @vue/cli-service-global \
+ && curl https://dl.google.com/go/go1.12.linux-amd64.tar.gz | tar xvzf - -C /usr/local \
+ && mkdir -p /go
+
+ENV GOROOT=/usr/local/go
+ENV GOPATH=/go
+ENV PATH=/go/bin:/usr/local/go/bin:$PATH
