@@ -1,0 +1,58 @@
+name: 'push'
+
+on:
+  push:
+  schedule:
+    - cron: '0 0 * * 5'
+
+jobs:
+
+  job:
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        arch: [ amd64, arm, aarch64 ]
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Checkout repo
+      uses: actions/checkout@v1
+
+    - name: Set up qus
+      if: matrix.arch != 'amd64'
+      env:
+        TGT_ARCHS: ${{ matrix.arch }}
+      run: |
+        docker run --rm --privileged aptman/qus -- -r
+        docker run --rm --privileged aptman/qus -s -- -p $TGT_ARCHS
+
+    - name: Run job
+      env:
+        TGT_ARCHS: ${{ matrix.arch }}
+      run: ./run.sh -b ALL
+
+    - name: Deploy to hub.docker.com
+      env:
+        TGT_ARCHS:   ${{ matrix.arch }}
+        DOCKER_USER: ${{ secrets.DOCKER_USER }}
+        DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
+      run: ./run.sh -p ALL
+
+  manifests:
+    needs: [ job ]
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Checkout repo
+      uses: actions/checkout@v1
+
+    - name: Update manifests
+      run: ./run.sh -m
+      env:
+        DOCKER_USER: ${{ secrets.DOCKER_USER }}
+        DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
+
+# FIXIT: ensure that PR's do not trigger deploy steps!
+# FIXIT: ensure that branches different from 'master' do not trigger deploy steps!
+# FIXIT: ensure that PR's cannot access/use secrets!

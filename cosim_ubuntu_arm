@@ -1,11 +1,9 @@
-ARG IMAGE="ubuntu:bionic-gtkwave"
+ARG IMAGE="ubuntu:bionic-gui"
 
 FROM $IMAGE
 
 RUN apt update -qq \
  && DEBIAN_FRONTEND=noninteractive apt -y install --no-install-recommends \
-   dbus-x11 \
-   terminator \
    libjpeg-dev \
    libpython3-dev \
    libtiff5-dev \
