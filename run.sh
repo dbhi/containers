@@ -178,7 +178,7 @@ build () {
           echo "Image <$i> not supported for arch <$DBHI_ARCH>."
           exit 1
         fi
-        do_build_imgarg "${i}-$DBHI_ARCH" "${DBHI_SLUG}-$DBHI_ARCH" "${i}_ubuntu"
+        do_build_imgarg "${i}-$DBHI_ARCH" "${DBHI_SLUG}-$DBHI_ARCH" mambo
       ;;
       dr|dynamorio)
         do_build_imgarg "dr-$DBHI_ARCH" "${DBHI_SLUG}-$DBHI_ARCH" dynamorio_ubuntu
