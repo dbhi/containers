@@ -7,46 +7,80 @@ on:
 
 jobs:
 
-  job:
+  amd64:
     strategy:
-      fail-fast: false
-      max-parallel: 5
+      max-parallel: 1
       matrix:
-        arch: [ amd64, arm, aarch64 ]
+        img: [ main, dr, gRPC, cosim, spinal, dev ]
     runs-on: ubuntu-latest
     steps:
-
-    - name: Checkout repo
-      uses: actions/checkout@v1
-
-    - name: Set up qus
-      if: matrix.arch != 'amd64'
+    - uses: actions/checkout@v1
+    - name: run job
       env:
-        TGT_ARCHS: ${{ matrix.arch }}
-      run: |
-        docker run --rm --privileged aptman/qus -- -r
-        docker run --rm --privileged aptman/qus -s -- -p $TGT_ARCHS
-
-    - name: Run job
-      env:
-        TGT_ARCHS: ${{ matrix.arch }}
-      run: ./run.sh -b ALL
-
-    - name: Deploy to hub.docker.com
-      env:
-        TGT_ARCHS:   ${{ matrix.arch }}
+        TGT_ARCHS: amd64
+        TGT_IMG: ${{ matrix.img }}
+      run: ./run.sh -b $TGT_IMG
+    - env:
+        TGT_ARCHS:   amd64
+        TGT_IMG:     ${{ matrix.img }}
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
         DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
-      run: ./run.sh -p ALL
+      run: ./run.sh -p $TGT_IMG
 
-  manifests:
-    needs: [ job ]
+  arm:
+    strategy:
+      max-parallel: 1
+      matrix:
+        img: [ main, mambo, dr, cosim ]
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/checkout@v1
+    - name: set up qus
+      run: |
+        docker run --rm --privileged aptman/qus -- -r
+        docker run --rm --privileged aptman/qus -s -- -p arm
+    - name: run job
+      env:
+        TGT_ARCHS: arm
+        TGT_IMG: ${{ matrix.img }}
+      run: ./run.sh -b $TGT_IMG
+    - env:
+        TGT_ARCHS:   arm
+        TGT_IMG:     ${{ matrix.img }}
+        DOCKER_USER: ${{ secrets.DOCKER_USER }}
+        DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
+      run: ./run.sh -p $TGT_IMG
 
+  arm64:
+    strategy:
+      max-parallel: 1
+      matrix:
+        img: [ main, mambo, dr, cosim ]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: set up qus
+      run: |
+        docker run --rm --privileged aptman/qus -- -r
+        docker run --rm --privileged aptman/qus -s -- -p aarch64
+    - name: run job
+      env:
+        TGT_ARCHS: aarch64
+        TGT_IMG: ${{ matrix.img }}
+      run: ./run.sh -b $TGT_IMG
+    - env:
+        TGT_ARCHS:   aarch64
+        TGT_IMG:     ${{ matrix.img }}
+        DOCKER_USER: ${{ secrets.DOCKER_USER }}
+        DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
+      run: ./run.sh -p $TGT_IMG
+
+  manifests:
+    needs: [ amd64, arm, arm64 ]
+    runs-on: ubuntu-latest
+    steps:
     - name: Checkout repo
       uses: actions/checkout@v1
-
     - name: Update manifests
       run: ./run.sh -m
       env:
