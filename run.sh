@@ -168,7 +168,7 @@ build () {
     case $i in
       dev)
         check_amd64only
-        do_build aptman/dbhi:dev - < dev_ubuntu
+        do_build aptman/dbhi:dev - < dev
       ;;
       main|base)
         do_build_imgarg "$DBHI_ARCH" "$IMG" main_ubuntu

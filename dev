@@ -1,6 +1,6 @@
 # winpty docker run --rm -itv /$(pwd)://src -w //src -p 8080:8080 aptman/dbhi:dev bash
 
-FROM ubuntu:bionic
+FROM debian:buster-slim
 
 RUN apt-get update \
  && apt-get install -y curl git gnupg2 \
