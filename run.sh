@@ -146,12 +146,14 @@ manifests () {
 
 do_build () {
   gstart "[DOCKER build] $1"
+  echo "docker build -t $@"
   docker build -t "$@"
   gend
 }
 
 do_build_imgarg () {
   gstart "[DOCKER build] $1"
+  echo "docker build -t ${DBHI_SLUG}-$1 --build-arg IMAGE=$2 - < $3"
   docker build -t "${DBHI_SLUG}-$1" --build-arg IMAGE="$2" - < "$3"
   gend
 }
