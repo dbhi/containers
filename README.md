@@ -1,24 +1,31 @@
-# [DBHI] Dynamic Binary Hardware Injection: docker images
+<p align="center">
+  <img src="./logo/light.png" width="550"/>
+</p>
 
-This repository contains containerized open and free development tools for decoupled functional hardware-software co-design on SoC, through injection of compiled HDL designs.
+<p align="center">
+  <a title="'push' workflow Status" href="https://github.com/dbhi/docker/actions"><img alt="'push' workflow Status" src="https://github.com/dbhi/docker/workflows/push/badge.svg"></a><!--
+  -->
+  <a title="Docker Hub" href="https://hub.docker.com/r/aptman/dbhi/"><img src="https://img.shields.io/docker/pulls/aptman/dbhi.svg?longCache=true&style=flat-square&logo=docker&logoColor=fff&label=aptman%2Fdbhi"></a><!--
+  -->
+</p>
 
-All the images currently available at [hub.docker.com/r/aptman/dbhi](https://hub.docker.com/r/aptman/dbhi/) are based on `Ubuntu 18.04 (bionic)`. Images provided by [docker-library/official-images](https://github.com/docker-library/official-images#architectures-other-than-amd64) are used and three host platforms are supported: `amd64`, `arm64v8` and `arm32v7`. Manifests are also available, in order to allow platform-agnostic development.
-
+This repository contains containerized open and free development tools for Dynamic Binary Hardware Injection (DBHI). All the images are available at [hub.docker.com/r/aptman/dbhi](https://hub.docker.com/r/aptman/dbhi/). Images provided by [docker-library/official-images](https://github.com/docker-library/official-images#architectures-other-than-amd64) are used as a base, and three host platforms are supported: `amd64`, `arm64v8` and `arm32v7`. Manifests are also available, in order to allow platform-agnostic development.
 
 - Any host:
-  - `aptman/dbhi:bionic*`: [GHDL](https://github.com/ghdl/ghdl) (with LLVM backend and `--default-pic`), and [VUnit](https://github.com/VUnit/vunit) (Python 3).
-  - `aptman/dbhi:bionic-dr*`: [DynamoRIO](https://github.com/DynamoRIO/dynamorio).
-  - `aptman/dbhi:bionic-gtkwave*`: [GTKWave](http://gtkwave.sourceforge.net/).
-  - `aptman/dbhi:bionic-gui*`: *base* image plus GTKWave.
-  - `aptman/dbhi:bionic-cosim*`: *gui* image plus [Flask](https://flask.palletsprojects.com/en/1.1.x/), [Pillow](https://pillow.readthedocs.io/en/stable/) and [numpy](https://numpy.org/).
+  - `aptman/dbhi:bionic*`: [GHDL](https://github.com/ghdl/ghdl) (with LLVM backend and `--default-pic`), and [VUnit](https://github.com/VUnit/vunit) (Python 3). This is the *base* image.
+  - `aptman/dbhi:bionic-dr*`: [DynamoRIO](https://github.com/DynamoRIO/dynamorio), based on *base* image.
+  - `aptman/dbhi:bionic-cosim*`: *base* image plus [GTKWave](http://gtkwave.sourceforge.net/), [Flask](https://flask.palletsprojects.com/en/1.1.x/), [Pillow](https://pillow.readthedocs.io/en/stable/) and [numpy](https://numpy.org/).
 
 - `arm`|`arm64` only:
-  - `aptman/dbhi:bionic-mambo-*`: [MAMBO](https://github.com/beehive-lab/mambo).
+  - `aptman/dbhi:bionic-mambo-*`: [MAMBO](https://github.com/beehive-lab/mambo), based on *base* image.
 
 - `amd64` only:
   - `aptman/dbhi:dev`: [Node.js](https://nodejs.org), [yarn](https://yarnpkg.com/) and [golang](https://golang.org/).
   - `aptman/dbhi:buster-gRPC-amd64`: [protoc](https://github.com/protocolbuffers/protobuf/), [grpc-go](https://github.com/grpc/grpc-go) and [protoc-gen-go](https://github.com/golang/protobuf/).
   - `aptman/dbhi:bionic-spinal*`: [SpinalHDL](https://github.com/SpinalHDL/SpinalHDL) and [RISCV dev tools](https://static.dev.sifive.com/dev-tools/).
+
+
+> NOTE: binaries/artifacts built in `aptman/dbhi:bionic*` images can be executed on v2.3 or v2.4 SDCard images provided at [Xilinx/PYNQ](https://github.com/Xilinx/PYNQ/releases), since those are based on `Ubuntu 18.04 (bionic)`. Releases are available for PYNQ, ZCU104 and ZCU111 boards.
 
 ## Continuous integration
 
