@@ -63,27 +63,6 @@ fi
 
 #---
 
-get_all_list () {
-  imgs="ALL"
-  if [ $# -ne 0 ] && [ "x$1" != "xALL" ]; then
-    echo "$@"
-    return
-  fi
-  case $DBHI_ARCH in
-    amd64)
-      echo "main dr gRPC gtkwave gui cosim spinal dev"
-    ;;
-    arm64|arm)
-      echo "main mambo dr gtkwave gui cosim"
-    ;;
-    *)
-      echo "Unknown arch $DBHI_ARCH..."
-      exit 1
-  esac
-}
-
-#---
-
 do_push () {
   gstart "[DOCKER push] $@"
   docker push "$@"
@@ -91,12 +70,8 @@ do_push () {
 }
 
 push () {
-  imgs="$(get_all_list)"
-
   docker images
-
   echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-
   for i in $imgs; do
     case $i in
       dev)
@@ -115,7 +90,7 @@ push () {
       dr|dynamorio)
         do_push "${DBHI_SLUG}-dr-$DBHI_ARCH"
       ;;
-      gtkwave|gui|cosim)
+      cosim)
         do_push "${DBHI_SLUG}-${i}-$DBHI_ARCH"
       ;;
       grpc|gRPC)
@@ -131,7 +106,6 @@ push () {
         exit 1
     esac
   done
-
   docker logout
 }
 
@@ -159,12 +133,12 @@ manifests () {
   fi
   echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
   do_manifests "$DBHI_SLUG" amd64 arm arm64
-  for m in dr gtkwave gui cosim; do
+  for m in dr cosim; do
     do_manifests "${DBHI_SLUG}-$m" amd64 arm arm64
   done
   do_manifests "aptman/dbhi:buster-gRPC" amd64
   do_manifests "$DBHI_SLUG"-spinal amd64
-  #docker logout
+  docker logout
 # https://github.com/docker/cli/issues/954
 }
 
@@ -190,37 +164,6 @@ check_amd64only () {
 }
 
 build () {
-  imgs="ALL"
-  if [ $# -ne 0 ] && [ "x$1" != "xALL" ]; then
-    imgs="$@"
-  fi
-
-  case $DBHI_ARCH in
-    amd64)
-      IMG="ubuntu:bionic"
-      if [ "x$imgs" = "xALL" ]; then
-        imgs="main dr gRPC gtkwave gui cosim spinal dev"
-      fi
-    ;;
-    arm64|arm)
-      if [ "x$imgs" = "xALL" ]; then
-        imgs="main mambo dr gtkwave gui cosim"
-      fi
-      case $DBHI_ARCH in
-        arm64)
-          arch="aarch64"
-          IMG="arm64v8/ubuntu:bionic"
-        ;;
-        *)
-          arch="aarch32"
-          IMG="arm32v7/ubuntu:bionic"
-      esac
-    ;;
-    *)
-      echo "Unknown arch $DBHI_ARCH..."
-      exit 1
-  esac
-
   for i in $imgs; do
     case $i in
       dev)
@@ -240,14 +183,12 @@ build () {
       dr|dynamorio)
         do_build_imgarg "dr-$DBHI_ARCH" "${DBHI_SLUG}-$DBHI_ARCH" dynamorio_ubuntu
       ;;
-      gtkwave)
-        do_build_imgarg "${i}-$DBHI_ARCH" "$IMG" "${i}_ubuntu"
-      ;;
-      gui)
-        do_build_imgarg "${i}-$DBHI_ARCH" "${DBHI_SLUG}-$DBHI_ARCH" gtkwave_ubuntu
-      ;;
       cosim)
-        do_build_imgarg "${i}-$DBHI_ARCH" "${DBHI_SLUG}-gui-$DBHI_ARCH" cosim_ubuntu_arm
+        tgt="arm"
+        if [ "x$DBHI_ARCH" = "xamd64" ]; then
+          tgt="amd64"
+        fi
+        do_build "${DBHI_SLUG}-${i}-$DBHI_ARCH" --build-arg IMAGE="${DBHI_SLUG}-gui-$DBHI_ARCH" --target="$tgt" - < cosim_ubuntu
       ;;
       grpc|gRPC)
         check_amd64only
@@ -273,26 +214,50 @@ if [ -z "$TGT_ARCHS" ]; then
   TGT_ARCHS="$(uname -m)"
 fi
 
+subcmd="$1"
+shift
+
+dimgs="ALL"
+if [ $# -ne 0 ] && [ "x$@" != "xALL" ]; then
+  dimgs="$@"
+fi
+
 for DBHI_ARCH in $TGT_ARCHS; do
   case $DBHI_ARCH in
     aarch64)
       DBHI_ARCH="arm64"
+      IMG="arm64v8/ubuntu:bionic"
     ;;
     aarch32|armv7l|arm)
       DBHI_ARCH="arm"
+      IMG="arm32v7/ubuntu:bionic"
     ;;
     x86_64|amd64)
       DBHI_ARCH="amd64"
+      IMG="ubuntu:bionic"
+    ;;
+    *)
+      echo "Unknown arch $DBHI_ARCH..."
+      exit 1
     ;;
   esac
-  case "$1" in
+  imgs="$dimgs"
+  if [ "x$imgs" = "xALL" ]; then
+    case $DBHI_ARCH in
+      amd64)
+        imgs="main dr gRPC cosim spinal dev"
+      ;;
+      arm64|arm)
+        imgs="main mambo dr cosim"
+      ;;
+    esac
+  fi
+  case "$subcmd" in
     "-b")
-      shift
-      build "$@"
+      build "$imgs"
     ;;
     "-p")
-      shift
-      push "$@"
+      push "$imgs"
     ;;
     "-m")
       manifests

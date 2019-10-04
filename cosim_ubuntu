@@ -34,11 +34,9 @@ RUN apt-get update -qq \
 RUN mkdir -pv /tmp/gtkwave && cd /tmp/gtkwave \
  && svn checkout svn://svn.code.sf.net/p/gtkwave/code/gtkwave3-gtk3 ./ \
  && ./configure --prefix="/usr/local" --with-tk=/usr/lib --enable-gtk3 \
- && make -j$(nproc) DESTDIR="$(pwd)/build-dir" \
+ && make -j$(nproc) \
  && make check \
- && make install DESTDIR="$(pwd)/build-dir" \
- && tar -zcvf /tmp/gtkwave.tgz -C build-dir/usr/local/ . \
- && cd .. && rm -rf gtkwave
+ && make install DESTDIR="/tmp/build-dir"
 
 #
 # GtkWave
@@ -71,7 +69,27 @@ RUN apt update -qq \
 
 #  && echo 'gtk-icon-theme-name = "Tango"' >> /usr/share/themes/Raleigh/gtk-2.0/gtkrc
 
-COPY --from=build-base /tmp/gtkwave.tgz /tmp/
+COPY --from=build-base /tmp/build-dir/* /usr/local/
 
-RUN tar -xzf /tmp/gtkwave.tgz -C /usr/local \
- && rm -f /tmp/*
+#
+# amd64
+#
+
+FROM base AS amd64
+
+RUN pip3 install flask Pillow numpy
+
+#
+# arm
+#
+
+FROM base AS arm
+
+RUN apt update -qq \
+ && DEBIAN_FRONTEND=noninteractive apt -y install --no-install-recommends \
+   libjpeg-dev \
+   libpython3-dev \
+   libtiff5-dev \
+   zlib1g-dev \
+ && pip3 install setuptools wheel \
+ && pip3 install flask Pillow numpy
