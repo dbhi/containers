@@ -3,7 +3,7 @@ name: 'push'
 on:
   push:
   schedule:
-    - cron: '0 0 * * 5'
+    - cron: '0 0 * * 6'
 
 jobs:
 
@@ -13,16 +13,14 @@ jobs:
       matrix:
         img: [ main, dr, gRPC, cosim, spinal, dev ]
     runs-on: ubuntu-latest
+    env:
+      TGT_ARCHS: amd64
+      TGT_IMG: ${{ matrix.img }}
     steps:
     - uses: actions/checkout@v1
     - name: run job
-      env:
-        TGT_ARCHS: amd64
-        TGT_IMG: ${{ matrix.img }}
       run: ./run.sh -b $TGT_IMG
     - env:
-        TGT_ARCHS:   amd64
-        TGT_IMG:     ${{ matrix.img }}
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
         DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
       run: ./run.sh -p $TGT_IMG
@@ -33,6 +31,9 @@ jobs:
       matrix:
         img: [ main, mambo, dr, cosim ]
     runs-on: ubuntu-latest
+    env:
+      TGT_ARCHS: arm
+      TGT_IMG: ${{ matrix.img }}
     steps:
     - uses: actions/checkout@v1
     - name: set up qus
@@ -40,13 +41,8 @@ jobs:
         docker run --rm --privileged aptman/qus -- -r
         docker run --rm --privileged aptman/qus -s -- -p arm
     - name: run job
-      env:
-        TGT_ARCHS: arm
-        TGT_IMG: ${{ matrix.img }}
       run: ./run.sh -b $TGT_IMG
     - env:
-        TGT_ARCHS:   arm
-        TGT_IMG:     ${{ matrix.img }}
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
         DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
       run: ./run.sh -p $TGT_IMG
@@ -57,6 +53,9 @@ jobs:
       matrix:
         img: [ main, mambo, dr, cosim ]
     runs-on: ubuntu-latest
+    env:
+      TGT_ARCHS: aarch64
+      TGT_IMG: ${{ matrix.img }}
     steps:
     - uses: actions/checkout@v1
     - name: set up qus
@@ -64,13 +63,8 @@ jobs:
         docker run --rm --privileged aptman/qus -- -r
         docker run --rm --privileged aptman/qus -s -- -p aarch64
     - name: run job
-      env:
-        TGT_ARCHS: aarch64
-        TGT_IMG: ${{ matrix.img }}
       run: ./run.sh -b $TGT_IMG
     - env:
-        TGT_ARCHS:   aarch64
-        TGT_IMG:     ${{ matrix.img }}
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
         DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
       run: ./run.sh -p $TGT_IMG
