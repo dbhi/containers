@@ -14,7 +14,7 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-        img: [ main, dr, gRPC, cosim, spinal, dev ]
+        img: [ main, dr, gRPC, octave, cosim, spinal, dev ]
     runs-on: ubuntu-latest
     env:
       TGT_ARCHS: amd64
@@ -32,7 +32,7 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-        img: [ main, mambo, dr, cosim ]
+        img: [ main, mambo, dr, octave, cosim ]
     runs-on: ubuntu-latest
     env:
       TGT_ARCHS: arm
@@ -54,7 +54,7 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-        img: [ main, mambo, dr, cosim ]
+        img: [ main, mambo, dr, octave, cosim ]
     runs-on: ubuntu-latest
     env:
       TGT_ARCHS: aarch64

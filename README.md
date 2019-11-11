@@ -15,6 +15,7 @@ This repository contains containerized open and free development tools for Dynam
   - `aptman/dbhi:bionic*`: [GHDL](https://github.com/ghdl/ghdl) (with LLVM backend and `--default-pic`), and [VUnit](https://github.com/VUnit/vunit) (Python 3). This is the *base* image.
   - `aptman/dbhi:bionic-dr*`: [DynamoRIO](https://github.com/DynamoRIO/dynamorio), based on *base* image.
   - `aptman/dbhi:bionic-cosim*`: *base* image plus [GTKWave](http://gtkwave.sourceforge.net/), [Flask](https://flask.palletsprojects.com/en/1.1.x/), [Pillow](https://pillow.readthedocs.io/en/stable/) and [numpy](https://numpy.org/).
+  - `aptman/dbhi:bionic-octave*`: *base* image plus [Octave](https://www.gnu.org/software/octave/).
 
 - `arm`|`arm64` only:
   - `aptman/dbhi:bionic-mambo-*`: [MAMBO](https://github.com/beehive-lab/mambo), based on *base* image.

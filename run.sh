@@ -90,7 +90,7 @@ push () {
       dr|dynamorio)
         do_push "${DBHI_SLUG}-dr-$DBHI_ARCH"
       ;;
-      cosim)
+      cosim|octave)
         do_push "${DBHI_SLUG}-${i}-$DBHI_ARCH"
       ;;
       grpc|gRPC)
@@ -133,7 +133,7 @@ manifests () {
   fi
   echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
   do_manifests "$DBHI_SLUG" amd64 arm arm64
-  for m in dr cosim; do
+  for m in dr cosim octave; do
     do_manifests "${DBHI_SLUG}-$m" amd64 arm arm64
   done
   do_manifests "aptman/dbhi:buster-gRPC" amd64
@@ -192,6 +192,9 @@ build () {
         fi
         do_build "${DBHI_SLUG}-${i}-$DBHI_ARCH" --build-arg IMAGE="${DBHI_SLUG}-gui-$DBHI_ARCH" --target="$tgt" - < cosim_ubuntu
       ;;
+      octave)
+        do_build "${DBHI_SLUG}-${i}-$DBHI_ARCH" --build-arg IMAGE="${DBHI_SLUG}-gui-$DBHI_ARCH" - < octave_ubuntu
+      ;;
       grpc|gRPC)
         check_amd64only
         do_build aptman/dbhi:buster-gRPC-amd64 - < gRPC_buster
@@ -247,10 +250,10 @@ for DBHI_ARCH in $TGT_ARCHS; do
   if [ "x$imgs" = "xALL" ]; then
     case $DBHI_ARCH in
       amd64)
-        imgs="main dr gRPC cosim spinal dev"
+        imgs="main dr gRPC cosim octave spinal dev"
       ;;
       arm64|arm)
-        imgs="main mambo dr cosim"
+        imgs="main mambo dr cosim octave"
       ;;
     esac
   fi
