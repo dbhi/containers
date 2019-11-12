@@ -28,6 +28,25 @@ This repository contains containerized open and free development tools for Dynam
 
 > NOTE: binaries/artifacts built in `aptman/dbhi:bionic*` images can be executed on v2.3 or v2.4 SDCard images provided at [Xilinx/PYNQ](https://github.com/Xilinx/PYNQ/releases), since those are based on `Ubuntu 18.04 (bionic)`. Releases are available for PYNQ, ZCU104 and ZCU111 boards.
 
+## Usage
+
+Some images include tools, such as GTKWave or Octave, that provide GUI interfaces. These interfaces require an X server, which is expected to be executed outside of the container. However, docker does not provide built-in options to automatically share the display from the host. Furthermore, non-linux environments do not provide an X server by default. Fortunately, [x11docker](https://github.com/mviereck/x11docker) and [runx](https://github.com/mviereck/runx) allow to easily set up custom X servers on either GNU/Linux or Windows.
+
+On GNU/Linux or Cygwin (with Cygwin/X):
+
+```sh
+x11docker --hostdisplay -i aptman/dbhi:bionic-cosim bash
+```
+
+On Windows, either MSYS2 (with VcxSrv) or WSL (with Cygwin/X or VcxSrv):
+
+```sh
+runx --no-auth -- x11docker --hostdisplay -i aptman/dbhi:bionic-cosim bash
+```
+
+Apart from these basic options, x11docker provides many [features](https://github.com/mviereck/x11docker#features) focused on security; and remote access is supported. See [JOSS 10.21105/joss.01349](https://joss.theoj.org/papers/10.21105/joss.01349).
+
+
 ## Continuous integration
 
 Images for the three target platforms are built in a GitHub Actions workflow. [dbhi/qus](https://github.com/dbhi/qus) is used to enable execution of images for foreign architectures (`arm64v8`|`arm32v7` on `amd64`). See [push.yml](./.github/workflows/push.yml) and [run.sh](./run.sh) for further details.
