@@ -92,4 +92,4 @@ RUN apt update -qq \
    libtiff5-dev \
    zlib1g-dev \
  && pip3 install setuptools wheel \
- && pip3 install flask Pillow numpy
+ && pip3 install Cython flask Pillow numpy
