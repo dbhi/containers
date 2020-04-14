@@ -136,6 +136,9 @@ manifests () {
   for m in dr cosim octave; do
     do_manifests "${DBHI_SLUG}-$m" amd64 arm arm64
   done
+  for m in mambo; do
+    do_manifests "${DBHI_SLUG}-$m" arm arm64
+  done
   do_manifests "aptman/dbhi:buster-gRPC" amd64
   do_manifests "$DBHI_SLUG"-spinal amd64
   docker logout
