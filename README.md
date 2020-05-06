@@ -33,16 +33,22 @@ This repository contains containerized open and free development tools for Dynam
 
 Some images include tools, such as GTKWave or Octave, that provide GUI interfaces. These interfaces require an X server, which is expected to be executed outside of the container. However, docker does not provide built-in options to automatically share the display from the host. Furthermore, non-linux environments do not provide an X server by default. Fortunately, [x11docker](https://github.com/mviereck/x11docker) and [runx](https://github.com/mviereck/runx) allow to easily set up custom X servers on either GNU/Linux or Windows.
 
-On GNU/Linux or Cygwin (with Cygwin/X):
+On GNU/Linux:
 
 ```sh
 x11docker --hostdisplay -i aptman/dbhi:bionic-cosim bash
 ```
 
-On Windows, either MSYS2 (with VcxSrv) or WSL (with Cygwin/X or VcxSrv):
+On Windows, with MSYS2 and VcxSrv:
 
 ```sh
-runx --no-auth -- x11docker --hostdisplay -i aptman/dbhi:bionic-cosim bash
+x11docker --runx --no-auth -i aptman/dbhi:bionic-cosim bash
+```
+
+On Windows, with WSL or Cygwin, and Cygwin/X:
+
+```sh
+x11docker -i aptman/dbhi:bionic-cosim bash
 ```
 
 Apart from these basic options, x11docker provides many [features](https://github.com/mviereck/x11docker#features) focused on security; and remote access is supported. See [JOSS 10.21105/joss.01349](https://joss.theoj.org/papers/10.21105/joss.01349).
