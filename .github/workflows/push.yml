@@ -4,6 +4,7 @@ on:
   push:
   schedule:
     - cron: '0 0 * * 6'
+  workflow_dispatch:
 
 env:
     DOCKER_BUILDKIT: '1'
