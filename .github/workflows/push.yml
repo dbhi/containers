@@ -2,6 +2,7 @@ name: 'push'
 
 on:
   push:
+  pull_request:
   schedule:
     - cron: '0 0 * * 6'
   workflow_dispatch:
@@ -24,7 +25,8 @@ jobs:
     - uses: actions/checkout@v1
     - name: run job
       run: ./run.sh -b $TGT_IMG
-    - env:
+    - if: github.event_name != 'pull_request' && github.repository == 'dbhi/containers'
+      env:
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
         DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
       run: ./run.sh -p $TGT_IMG
@@ -46,7 +48,8 @@ jobs:
         docker run --rm --privileged aptman/qus -s -- -p arm
     - name: run job
       run: ./run.sh -b $TGT_IMG
-    - env:
+    - if: github.event_name != 'pull_request' && github.repository == 'dbhi/containers'
+      env:
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
         DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
       run: ./run.sh -p $TGT_IMG
@@ -68,12 +71,14 @@ jobs:
         docker run --rm --privileged aptman/qus -s -- -p aarch64
     - name: run job
       run: ./run.sh -b $TGT_IMG
-    - env:
+    - if: github.event_name != 'pull_request' && github.repository == 'dbhi/containers'
+      env:
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
         DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
       run: ./run.sh -p $TGT_IMG
 
   manifests:
+    if: github.event_name != 'pull_request' && github.repository == 'dbhi/containers'
     needs: [ amd64, arm, arm64 ]
     runs-on: ubuntu-latest
     steps:
@@ -85,6 +90,4 @@ jobs:
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
         DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
 
-# FIXIT: ensure that PR's do not trigger deploy steps!
 # FIXIT: ensure that branches different from 'master' do not trigger deploy steps!
-# FIXIT: ensure that PR's cannot access/use secrets!
