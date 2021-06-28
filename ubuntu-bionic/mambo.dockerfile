@@ -1,4 +1,4 @@
-ARG IMAGE="debian:buster-slim"
+ARG IMAGE="ubuntu:bionic"
 
 FROM $IMAGE
 

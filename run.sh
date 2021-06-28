@@ -165,35 +165,35 @@ build () {
   for i in $imgs; do
     case $i in
       main|base)
-        do_build_imgarg "$DBHI_ARCH" "$IMG" main_ubuntu
+        do_build_imgarg "$DBHI_ARCH" "$IMG" ubuntu-bionic/main.dockerfile
       ;;
       mambo)
         if [ "x$DBHI_ARCH" = "xamd64" ]; then
           echo "Image <$i> not supported for arch <$DBHI_ARCH>."
           exit 1
         fi
-        do_build_imgarg "${i}-$DBHI_ARCH" "${DBHI_SLUG}-$DBHI_ARCH" mambo
+        do_build_imgarg "${i}-$DBHI_ARCH" "${DBHI_SLUG}-$DBHI_ARCH" ubuntu-bionic/mambo.dockerfile
       ;;
       dr|dynamorio)
-        do_build_imgarg "dr-$DBHI_ARCH" "${DBHI_SLUG}-$DBHI_ARCH" dynamorio_ubuntu
+        do_build_imgarg "dr-$DBHI_ARCH" "${DBHI_SLUG}-$DBHI_ARCH" ubuntu-bionic/dynamorio.dockerfile
       ;;
       cosim)
         tgt="arm"
         if [ "x$DBHI_ARCH" = "xamd64" ]; then
           tgt="amd64"
         fi
-        do_build "${DBHI_SLUG}-${i}-$DBHI_ARCH" --build-arg IMAGE="${DBHI_SLUG}-gui-$DBHI_ARCH" --target="$tgt" - < cosim_ubuntu
+        do_build "${DBHI_SLUG}-${i}-$DBHI_ARCH" --build-arg IMAGE="${DBHI_SLUG}-gui-$DBHI_ARCH" --target="$tgt" - < ubuntu-bionic/cosim.dockerfile
       ;;
       octave)
-        do_build "${DBHI_SLUG}-${i}-$DBHI_ARCH" --build-arg IMAGE="${DBHI_SLUG}-gui-$DBHI_ARCH" - < octave_ubuntu
+        do_build "${DBHI_SLUG}-${i}-$DBHI_ARCH" --build-arg IMAGE="${DBHI_SLUG}-gui-$DBHI_ARCH" - < ubuntu-bionic/octave.dockerfile
       ;;
       grpc|gRPC)
         check_amd64only
-        do_build aptman/dbhi:buster-gRPC-amd64 - < gRPC_buster
+        do_build aptman/dbhi:buster-gRPC-amd64 - < debian-buster/gRPC.dockerfile
       ;;
       spinal)
         check_amd64only
-        do_build_imgarg "spinal-amd64" "$IMG" spinal_ubuntu
+        do_build_imgarg "spinal-amd64" "$IMG" ubuntu-bionic/spinalhdl.dockerfile
       ;;
       *)
         echo "Unknown image <$i> for host arch <$DBHI_ARCH>"

@@ -1,8 +1,4 @@
-ARG IMAGE="ubuntu:xenial"
-
-#
-# Build GtkWave
-#
+ARG IMAGE="ubuntu:bionic"
 
 FROM $IMAGE
 
