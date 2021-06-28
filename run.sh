@@ -71,7 +71,6 @@ do_push () {
 
 push () {
   docker images
-  echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
   for i in $imgs; do
     case $i in
       dev)
@@ -106,7 +105,6 @@ push () {
         exit 1
     esac
   done
-  docker logout
 }
 
 #---
@@ -131,7 +129,6 @@ manifests () {
     mkdir -p ~/.docker
     echo '{"experimental": "enabled"}' > ~/.docker/config.json
   fi
-  echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
   do_manifests "$DBHI_SLUG" amd64 arm arm64
   for m in dr cosim octave; do
     do_manifests "${DBHI_SLUG}-$m" amd64 arm arm64
@@ -141,7 +138,6 @@ manifests () {
   done
   do_manifests "aptman/dbhi:buster-gRPC" amd64
   do_manifests "$DBHI_SLUG"-spinal amd64
-  docker logout
 # https://github.com/docker/cli/issues/954
 }
 

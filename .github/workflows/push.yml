@@ -36,10 +36,14 @@ jobs:
     - name: run job
       run: ./run.sh -b $TGT_IMG
 
+    - name: Login to docker.io
+      if: github.event_name != 'pull_request' && github.repository == 'dbhi/containers'
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKER_USER }}
+        password: ${{ secrets.DOCKER_PASS }}
+
     - if: github.event_name != 'pull_request' && github.repository == 'dbhi/containers'
-      env:
-        DOCKER_USER: ${{ secrets.DOCKER_USER }}
-        DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
       run: ./run.sh -p $TGT_IMG
 
 
@@ -69,10 +73,14 @@ jobs:
     - name: run job
       run: ./run.sh -b $TGT_IMG
 
+    - name: Login to docker.io
+      if: github.event_name != 'pull_request' && github.repository == 'dbhi/containers'
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKER_USER }}
+        password: ${{ secrets.DOCKER_PASS }}
+
     - if: github.event_name != 'pull_request' && github.repository == 'dbhi/containers'
-      env:
-        DOCKER_USER: ${{ secrets.DOCKER_USER }}
-        DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
       run: ./run.sh -p $TGT_IMG
 
 
@@ -102,10 +110,14 @@ jobs:
     - name: run job
       run: ./run.sh -b $TGT_IMG
 
+    - name: Login to docker.io
+      if: github.event_name != 'pull_request' && github.repository == 'dbhi/containers'
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKER_USER }}
+        password: ${{ secrets.DOCKER_PASS }}
+
     - if: github.event_name != 'pull_request' && github.repository == 'dbhi/containers'
-      env:
-        DOCKER_USER: ${{ secrets.DOCKER_USER }}
-        DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
       run: ./run.sh -p $TGT_IMG
 
 
@@ -118,10 +130,13 @@ jobs:
     - name: Checkout repo
       uses: actions/checkout@v1
 
+    - name: Login to docker.io
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKER_USER }}
+        password: ${{ secrets.DOCKER_PASS }}
+
     - name: Update manifests
       run: ./run.sh -m
-      env:
-        DOCKER_USER: ${{ secrets.DOCKER_USER }}
-        DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
 
 # FIXIT: ensure that branches different from 'master' do not trigger deploy steps!
