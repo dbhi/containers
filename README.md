@@ -31,7 +31,7 @@ Manifests are also available, in order to allow platform-agnostic development.
 - `amd64` only:
   - `aptman/dbhi:buster-gRPC-amd64`: [protoc](https://github.com/protocolbuffers/protobuf/),
     [grpc-go](https://github.com/grpc/grpc-go) and [protoc-gen-go](https://github.com/golang/protobuf/).
-  - `aptman/dbhi:bionic-spinal*`: [SpinalHDL](https://github.com/SpinalHDL/SpinalHDL) and
+  - `aptman/dbhi:bionic-spinalhdl*`: [SpinalHDL](https://github.com/SpinalHDL/SpinalHDL) and
     [RISCV dev tools](https://static.dev.sifive.com/dev-tools/).
 
 
@@ -79,7 +79,7 @@ See [push.yml](./.github/workflows/push.yml) and [run.sh](./run.sh) for further 
 ## Building docker images for/on ARM targets
 
 - SiFive does not provide prebuilt packages for ARM hosts: [sifive.com/boards](https://www.sifive.com/boards/).
-  That's why `spinal` images for Arm platforms are not provided, although SpinalHDL can be successfully executed.
+  That's why `spinalhdl` images for Arm platforms are not provided, although SpinalHDL can be successfully executed.
 
 - Building image *dr* hangs the system on RPi3B. We should investigate why.
   However, DynamoRIO can be succesfully built natively.

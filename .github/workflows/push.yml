@@ -57,7 +57,7 @@ jobs:
         - dr
         - gRPC
         - cosim
-        - spinal
+        - spinalhdl
     runs-on: ubuntu-latest
     env:
       TGT_ARCHS: amd64

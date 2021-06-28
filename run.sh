@@ -93,9 +93,9 @@ push () {
         check_amd64only
         do_push "aptman/dbhi:buster-gRPC-amd64"
       ;;
-      spinal)
+      spinalhdl)
         check_amd64only
-        do_push "${DBHI_SLUG}-spinal-$DBHI_ARCH"
+        do_push "${DBHI_SLUG}-spinalhdl-$DBHI_ARCH"
       ;;
       *)
         echo "Unknown image <$i> for host arch <$DBHI_ARCH>"
@@ -134,7 +134,7 @@ manifests () {
     do_manifests "${DBHI_SLUG}-$m" arm arm64
   done
   do_manifests "aptman/dbhi:buster-gRPC" amd64
-  do_manifests "$DBHI_SLUG"-spinal amd64
+  do_manifests "$DBHI_SLUG"-spinalhdl amd64
 # https://github.com/docker/cli/issues/954
 }
 
@@ -191,9 +191,9 @@ build () {
         check_amd64only
         do_build aptman/dbhi:buster-gRPC-amd64 - < debian-buster/gRPC.dockerfile
       ;;
-      spinal)
+      spinalhdl)
         check_amd64only
-        do_build_imgarg "spinal-amd64" "$IMG" ubuntu-bionic/spinalhdl.dockerfile
+        do_build_imgarg "spinalhdl-amd64" "$IMG" ubuntu-bionic/spinalhdl.dockerfile
       ;;
       *)
         echo "Unknown image <$i> for host arch <$DBHI_ARCH>"
