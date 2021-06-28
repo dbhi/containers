@@ -31,7 +31,7 @@ jobs:
       TGT_IMG: ${{ matrix.img }}
     steps:
 
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
 
     - name: run job
       run: ./run.sh -b $TGT_IMG
@@ -63,7 +63,7 @@ jobs:
       TGT_IMG: ${{ matrix.img }}
     steps:
 
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
 
     - name: set up qus
       run: |
@@ -100,7 +100,7 @@ jobs:
       TGT_IMG: ${{ matrix.img }}
     steps:
 
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
 
     - name: set up qus
       run: |
@@ -128,7 +128,7 @@ jobs:
     steps:
 
     - name: Checkout repo
-      uses: actions/checkout@v1
+      uses: actions/checkout@v2
 
     - name: Login to docker.io
       uses: docker/login-action@v1
