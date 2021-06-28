@@ -26,25 +26,27 @@ jobs:
       TGT_ARCHS: ${{ matrix.arch }}
     steps:
 
-    - uses: actions/checkout@v2
+    - name: '🧰 Checkout'
+      uses: actions/checkout@v2
 
-    - name: Setup qus
+    - name: '⚙️ Setup qus'
       if: ${{ matrix.qarch }} != ''
       run: |
         docker run --rm --privileged aptman/qus -- -r
         docker run --rm --privileged aptman/qus -s -- -p ${{ matrix.qarch }}
 
-    - name: run job
+    - name: '🚧 Run job'
       run: ./run.sh -b main
 
-    - name: Login to docker.io
+    - name: '⛴️ Login to docker.io'
       if: github.event_name != 'pull_request' && github.repository == 'dbhi/containers'
       uses: docker/login-action@v1
       with:
         username: ${{ secrets.DOCKER_USER }}
         password: ${{ secrets.DOCKER_PASS }}
 
-    - if: github.event_name != 'pull_request' && github.repository == 'dbhi/containers'
+    - name: '🚀 Push'
+      if: github.event_name != 'pull_request' && github.repository == 'dbhi/containers'
       run: ./run.sh -p main
 
 
@@ -64,19 +66,21 @@ jobs:
       TGT_IMG: ${{ matrix.img }}
     steps:
 
-    - uses: actions/checkout@v2
+    - name: '🧰 Checkout'
+      uses: actions/checkout@v2
 
-    - name: run job
+    - name: '🚧 Run job'
       run: ./run.sh -b $TGT_IMG
 
-    - name: Login to docker.io
+    - name: '⛴️ Login to docker.io'
       if: github.event_name != 'pull_request' && github.repository == 'dbhi/containers'
       uses: docker/login-action@v1
       with:
         username: ${{ secrets.DOCKER_USER }}
         password: ${{ secrets.DOCKER_PASS }}
 
-    - if: github.event_name != 'pull_request' && github.repository == 'dbhi/containers'
+    - name: '🚀 Push'
+      if: github.event_name != 'pull_request' && github.repository == 'dbhi/containers'
       run: ./run.sh -p $TGT_IMG
 
 
@@ -95,24 +99,26 @@ jobs:
       TGT_IMG: ${{ matrix.img }}
     steps:
 
-    - uses: actions/checkout@v2
+    - name: '🧰 Checkout'
+      uses: actions/checkout@v2
 
-    - name: set up qus
+    - name: '⚙️ Setup qus for arm'
       run: |
         docker run --rm --privileged aptman/qus -- -r
         docker run --rm --privileged aptman/qus -s -- -p arm
 
-    - name: run job
+    - name: '🚧 Run job'
       run: ./run.sh -b $TGT_IMG
 
-    - name: Login to docker.io
+    - name: '⛴️ Login to docker.io'
       if: github.event_name != 'pull_request' && github.repository == 'dbhi/containers'
       uses: docker/login-action@v1
       with:
         username: ${{ secrets.DOCKER_USER }}
         password: ${{ secrets.DOCKER_PASS }}
 
-    - if: github.event_name != 'pull_request' && github.repository == 'dbhi/containers'
+    - name: '🚀 Push'
+      if: github.event_name != 'pull_request' && github.repository == 'dbhi/containers'
       run: ./run.sh -p $TGT_IMG
 
 
@@ -131,24 +137,26 @@ jobs:
       TGT_IMG: ${{ matrix.img }}
     steps:
 
-    - uses: actions/checkout@v2
+    - name: '🧰 Checkout'
+      uses: actions/checkout@v2
 
-    - name: set up qus
+    - name: '⚙️ Setup qus for aarch64'
       run: |
         docker run --rm --privileged aptman/qus -- -r
         docker run --rm --privileged aptman/qus -s -- -p aarch64
 
-    - name: run job
+    - name: '🚧 Run job'
       run: ./run.sh -b $TGT_IMG
 
-    - name: Login to docker.io
+    - name: '⛴️ Login to docker.io'
       if: github.event_name != 'pull_request' && github.repository == 'dbhi/containers'
       uses: docker/login-action@v1
       with:
         username: ${{ secrets.DOCKER_USER }}
         password: ${{ secrets.DOCKER_PASS }}
 
-    - if: github.event_name != 'pull_request' && github.repository == 'dbhi/containers'
+    - name: '🚀 Push'
+      if: github.event_name != 'pull_request' && github.repository == 'dbhi/containers'
       run: ./run.sh -p $TGT_IMG
 
 
@@ -169,25 +177,27 @@ jobs:
       TGT_ARCHS: ${{ matrix.arch }}
     steps:
 
-    - uses: actions/checkout@v2
+    - name: '🧰 Checkout'
+      uses: actions/checkout@v2
 
-    - name: Setup qus
+    - name: '⚙️ Setup qus for ${{ matrix.qarch }}'
       if: ${{ matrix.qarch }} != ''
       run: |
         docker run --rm --privileged aptman/qus -- -r
         docker run --rm --privileged aptman/qus -s -- -p ${{ matrix.qarch }}
 
-    - name: run job
+    - name: '🚧 Run job'
       run: ./run.sh -b octave
 
-    - name: Login to docker.io
+    - name: '⛴️ Login to docker.io'
       if: github.event_name != 'pull_request' && github.repository == 'dbhi/containers'
       uses: docker/login-action@v1
       with:
         username: ${{ secrets.DOCKER_USER }}
         password: ${{ secrets.DOCKER_PASS }}
 
-    - if: github.event_name != 'pull_request' && github.repository == 'dbhi/containers'
+    - name: '🚀 Push'
+      if: github.event_name != 'pull_request' && github.repository == 'dbhi/containers'
       run: ./run.sh -p octave
 
 
@@ -197,16 +207,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-    - name: Checkout repo
+    - name: '🧰 Checkout'
       uses: actions/checkout@v2
 
-    - name: Login to docker.io
+    - name: '⛴️ Login to docker.io'
       uses: docker/login-action@v1
       with:
         username: ${{ secrets.DOCKER_USER }}
         password: ${{ secrets.DOCKER_PASS }}
 
-    - name: Update manifests
+    - name: '🛰️ Update manifests'
       run: ./run.sh -m
 
 # FIXIT: ensure that branches different from 'master' do not trigger deploy steps!
