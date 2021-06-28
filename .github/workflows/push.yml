@@ -87,63 +87,28 @@ jobs:
   arm:
     needs: main
     strategy:
-      max-parallel: 3
+      max-parallel: 6
       matrix:
+        arch:
+        - arm
+        - aarch64
         img:
         - mambo
         - dr
         - cosim
     runs-on: ubuntu-latest
     env:
-      TGT_ARCHS: arm
+      TGT_ARCHS: ${{ matrix.arch }}
       TGT_IMG: ${{ matrix.img }}
     steps:
 
     - name: '🧰 Checkout'
       uses: actions/checkout@v2
 
-    - name: '⚙️ Setup qus for arm'
+    - name: '⚙️ Setup qus for ${{ matrix.arch }}'
       run: |
         docker run --rm --privileged aptman/qus -- -r
-        docker run --rm --privileged aptman/qus -s -- -p arm
-
-    - name: '🚧 Run job'
-      run: ./run.sh -b $TGT_IMG
-
-    - name: '⛴️ Login to docker.io'
-      if: github.event_name != 'pull_request' && github.repository == 'dbhi/containers'
-      uses: docker/login-action@v1
-      with:
-        username: ${{ secrets.DOCKER_USER }}
-        password: ${{ secrets.DOCKER_PASS }}
-
-    - name: '🚀 Push'
-      if: github.event_name != 'pull_request' && github.repository == 'dbhi/containers'
-      run: ./run.sh -p $TGT_IMG
-
-
-  arm64:
-    needs: main
-    strategy:
-      max-parallel: 3
-      matrix:
-        img:
-        - mambo
-        - dr
-        - cosim
-    runs-on: ubuntu-latest
-    env:
-      TGT_ARCHS: aarch64
-      TGT_IMG: ${{ matrix.img }}
-    steps:
-
-    - name: '🧰 Checkout'
-      uses: actions/checkout@v2
-
-    - name: '⚙️ Setup qus for aarch64'
-      run: |
-        docker run --rm --privileged aptman/qus -- -r
-        docker run --rm --privileged aptman/qus -s -- -p aarch64
+        docker run --rm --privileged aptman/qus -s -- -p ${{ matrix.arch }}
 
     - name: '🚧 Run job'
       run: ./run.sh -b $TGT_IMG
@@ -164,7 +129,6 @@ jobs:
     needs:
     - amd64
     - arm
-    - arm64
     strategy:
       max-parallel: 3
       matrix:
