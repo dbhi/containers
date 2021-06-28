@@ -12,78 +12,112 @@ env:
 
 jobs:
 
+
   amd64:
     strategy:
       max-parallel: 1
       matrix:
-        img: [ main, dr, gRPC, octave, cosim, spinal, dev ]
+        img:
+        - main
+        - dr
+        - gRPC
+        - octave
+        - cosim
+        - spinal
+        - dev
     runs-on: ubuntu-latest
     env:
       TGT_ARCHS: amd64
       TGT_IMG: ${{ matrix.img }}
     steps:
+
     - uses: actions/checkout@v1
+
     - name: run job
       run: ./run.sh -b $TGT_IMG
+
     - if: github.event_name != 'pull_request' && github.repository == 'dbhi/containers'
       env:
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
         DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
       run: ./run.sh -p $TGT_IMG
+
 
   arm:
     strategy:
       max-parallel: 1
       matrix:
-        img: [ main, mambo, dr, octave, cosim ]
+        img:
+        - main
+        - mambo
+        - dr
+        - octave
+        - cosim
     runs-on: ubuntu-latest
     env:
       TGT_ARCHS: arm
       TGT_IMG: ${{ matrix.img }}
     steps:
+
     - uses: actions/checkout@v1
+
     - name: set up qus
       run: |
         docker run --rm --privileged aptman/qus -- -r
         docker run --rm --privileged aptman/qus -s -- -p arm
+
     - name: run job
       run: ./run.sh -b $TGT_IMG
+
     - if: github.event_name != 'pull_request' && github.repository == 'dbhi/containers'
       env:
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
         DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
       run: ./run.sh -p $TGT_IMG
 
+
   arm64:
     strategy:
       max-parallel: 1
       matrix:
-        img: [ main, mambo, dr, octave, cosim ]
+        img:
+        - main
+        - mambo
+        - dr
+        - octave
+        - cosim
     runs-on: ubuntu-latest
     env:
       TGT_ARCHS: aarch64
       TGT_IMG: ${{ matrix.img }}
     steps:
+
     - uses: actions/checkout@v1
+
     - name: set up qus
       run: |
         docker run --rm --privileged aptman/qus -- -r
         docker run --rm --privileged aptman/qus -s -- -p aarch64
+
     - name: run job
       run: ./run.sh -b $TGT_IMG
+
     - if: github.event_name != 'pull_request' && github.repository == 'dbhi/containers'
       env:
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
         DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
       run: ./run.sh -p $TGT_IMG
+
 
   manifests:
     if: github.event_name != 'pull_request' && github.repository == 'dbhi/containers'
     needs: [ amd64, arm, arm64 ]
     runs-on: ubuntu-latest
     steps:
+
     - name: Checkout repo
       uses: actions/checkout@v1
+
     - name: Update manifests
       run: ./run.sh -m
       env:
