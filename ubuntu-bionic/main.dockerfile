@@ -1,7 +1,7 @@
 ARG IMAGE="ubuntu:bionic"
 
-ARG TAG_GHDL="2e12aa8732cd49438a165a0b20c9acd9e37cde4d"
-ARG TAG_VUNIT="7baf266bb7dd24ea5ee4e8ede4158526604dcf20"
+ARG TAG_GHDL="b4d4d9abb322ed0807d2ba0888e73820499aa338"
+ARG TAG_VUNIT="07a7c8be4cca23969ed8ef59d6387aa248364c4c"
 
 #
 # Build GHDL
@@ -27,8 +27,9 @@ RUN apt-get update -qq \
 
 RUN mkdir -p /tmp/ghdl && cd /tmp/ghdl \
  && curl -fsSL https://codeload.github.com/ghdl/ghdl/tar.gz/$TAG_GHDL | tar xzf - --strip-components=1 \
- && CONFIG_OPTS="--default-pic " ./dist/travis/build.sh -b llvm-6.0 -p ghdl-llvm-fPIC \
- && mv ghdl-llvm-fPIC.tgz /tmp
+ && CXX=clang++-6.0 ./configure --with-llvm-config=llvm-config-6.0 --default-pic --disable-werror \
+ && make \
+ && make DESTDIR=/tmp/ghdl-llvm install
 
 #
 # Get VUnit
@@ -67,11 +68,9 @@ RUN apt update -qq \
   && apt autoclean && apt clean && apt -y autoremove \
   && update-ca-certificates
 
-COPY --from=build-base /tmp/ghdl-llvm-fPIC.tgz /tmp/ghdl.tgz
+COPY --from=build-base /tmp/ghdl-llvm /
 COPY --from=get-vunit /opt/vunit/ /opt/vunit
 
-RUN tar -xzf /tmp/ghdl.tgz -C /usr/local \
- && rm -f /tmp/* \
- && pip3 install -r /opt/vunit/requirements.txt
+RUN pip3 install -r /opt/vunit/requirements.txt
 
 ENV PYTHONPATH=/opt/vunit
