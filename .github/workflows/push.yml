@@ -24,6 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       TGT_ARCHS: ${{ matrix.arch }}
+    name: '${{ matrix.arch }} | main'
     steps:
 
     - name: '🧰 Checkout'
@@ -50,27 +51,35 @@ jobs:
       run: ./run.sh -p main
 
 
-  amd64:
+  common:
     needs: main
     strategy:
-      max-parallel: 4
+      max-parallel: 6
       matrix:
+        platform:
+        - { arch: amd64, qarch: ''}
+        - { arch: arm,   qarch: arm}
+        - { arch: arm64, qarch: aarch64}
         img:
         - dr
-        - gRPC
         - cosim
-        - spinalhdl
     runs-on: ubuntu-latest
     env:
-      TGT_ARCHS: amd64
-      TGT_IMG: ${{ matrix.img }}
+      TGT_ARCHS: ${{ matrix.platform.arch }}
+    name: '${{ matrix.platform.arch }} | ${{ matrix.img }}'
     steps:
 
     - name: '🧰 Checkout'
       uses: actions/checkout@v2
 
+    - name: '⚙️ Setup qus'
+      if: ${{ matrix.qarch }} != ''
+      run: |
+        docker run --rm --privileged aptman/qus -- -r
+        docker run --rm --privileged aptman/qus -s -- -p ${{ matrix.platform.qarch }}
+
     - name: '🚧 Run job'
-      run: ./run.sh -b $TGT_IMG
+      run: ./run.sh -b ${{ matrix.img }}
 
     - name: '⛴️ Login to docker.io'
       if: github.event_name != 'pull_request' && github.repository == 'dbhi/containers'
@@ -81,10 +90,42 @@ jobs:
 
     - name: '🚀 Push'
       if: github.event_name != 'pull_request' && github.repository == 'dbhi/containers'
-      run: ./run.sh -p $TGT_IMG
+      run: ./run.sh -p ${{ matrix.img }}
 
 
-  arm:
+  amd64:
+    needs: main
+    strategy:
+      max-parallel: 2
+      matrix:
+        img:
+        - gRPC
+        - spinalhdl
+    runs-on: ubuntu-latest
+    env:
+      TGT_ARCHS: amd64
+    name: 'amd64 | ${{ matrix.img }}'
+    steps:
+
+    - name: '🧰 Checkout'
+      uses: actions/checkout@v2
+
+    - name: '🚧 Run job'
+      run: ./run.sh -b ${{ matrix.img }}
+
+    - name: '⛴️ Login to docker.io'
+      if: github.event_name != 'pull_request' && github.repository == 'dbhi/containers'
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKER_USER }}
+        password: ${{ secrets.DOCKER_PASS }}
+
+    - name: '🚀 Push'
+      if: github.event_name != 'pull_request' && github.repository == 'dbhi/containers'
+      run: ./run.sh -p ${{ matrix.img }}
+
+
+  mambo:
     needs: main
     strategy:
       max-parallel: 6
@@ -92,14 +133,10 @@ jobs:
         arch:
         - arm
         - aarch64
-        img:
-        - mambo
-        - dr
-        - cosim
     runs-on: ubuntu-latest
     env:
       TGT_ARCHS: ${{ matrix.arch }}
-      TGT_IMG: ${{ matrix.img }}
+    name: '${{ matrix.arch }} | mambo'
     steps:
 
     - name: '🧰 Checkout'
@@ -111,7 +148,7 @@ jobs:
         docker run --rm --privileged aptman/qus -s -- -p ${{ matrix.arch }}
 
     - name: '🚧 Run job'
-      run: ./run.sh -b $TGT_IMG
+      run: ./run.sh -b mambo
 
     - name: '⛴️ Login to docker.io'
       if: github.event_name != 'pull_request' && github.repository == 'dbhi/containers'
@@ -122,13 +159,11 @@ jobs:
 
     - name: '🚀 Push'
       if: github.event_name != 'pull_request' && github.repository == 'dbhi/containers'
-      run: ./run.sh -p $TGT_IMG
+      run: ./run.sh -p mambo
 
 
   octave:
-    needs:
-    - amd64
-    - arm
+    needs: common
     strategy:
       max-parallel: 3
       matrix:
@@ -139,6 +174,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       TGT_ARCHS: ${{ matrix.arch }}
+    name: '${{ matrix.arch }} | octave'
     steps:
 
     - name: '🧰 Checkout'
@@ -167,7 +203,10 @@ jobs:
 
   manifests:
     if: github.event_name != 'pull_request' && github.repository == 'dbhi/containers'
-    needs: octave
+    needs:
+    - amd64
+    - mambo
+    - octave
     runs-on: ubuntu-latest
     steps:
 
