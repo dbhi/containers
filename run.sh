@@ -122,10 +122,6 @@ do_manifests () {
 }
 
 manifests () {
-  if [ -n "$GITHUB_EVENT_PATH" ]; then
-    mkdir -p ~/.docker
-    echo '{"experimental": "enabled"}' > ~/.docker/config.json
-  fi
   do_manifests "$DBHI_SLUG" amd64 arm arm64
   for m in dr cosim octave; do
     do_manifests "${DBHI_SLUG}-$m" amd64 arm arm64
