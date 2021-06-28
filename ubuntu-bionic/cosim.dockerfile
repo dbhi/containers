@@ -4,7 +4,7 @@ ARG IMAGE="ubuntu:bionic"
 # Build GtkWave
 #
 
-FROM $IMAGE AS build-base
+FROM $IMAGE AS build
 
 WORKDIR /work
 
@@ -30,13 +30,15 @@ RUN apt-get update -qq \
  && apt-get autoclean && apt-get clean && apt-get -y autoremove \
  && update-ca-certificates
 
+ENV PREFIX=/usr/local/bin
+
 RUN mkdir -pv /tmp/gtkwave && cd /tmp/gtkwave \
  && git clone https://github.com/gtkwave/gtkwave ./ \
  && cd gtkwave3-gtk3 \
  && ./configure --prefix="/usr/local" --with-tk=/usr/lib --enable-gtk3 \
  && make -j$(nproc) \
  && make check \
- && make install DESTDIR="/tmp/build-dir"
+ && make DESTDIR="/tmp/build-dir" install
 
 #
 # GtkWave
@@ -69,7 +71,7 @@ RUN apt update -qq \
 
 #  && echo 'gtk-icon-theme-name = "Tango"' >> /usr/share/themes/Raleigh/gtk-2.0/gtkrc
 
-COPY --from=build-base /tmp/build-dir/* /usr/local/
+COPY --from=build /tmp/build-dir/ /
 
 #
 # amd64
