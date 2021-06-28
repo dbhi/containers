@@ -73,9 +73,6 @@ push () {
   docker images
   for i in $imgs; do
     case $i in
-      dev)
-        do_push "aptman/dbhi:dev"
-      ;;
       main|base)
         do_push "${DBHI_SLUG}-$DBHI_ARCH"
       ;;
@@ -167,10 +164,6 @@ check_amd64only () {
 build () {
   for i in $imgs; do
     case $i in
-      dev)
-        check_amd64only
-        do_build aptman/dbhi:dev - < dev
-      ;;
       main|base)
         do_build_imgarg "$DBHI_ARCH" "$IMG" main_ubuntu
       ;;
@@ -249,7 +242,7 @@ for DBHI_ARCH in $TGT_ARCHS; do
   if [ "x$imgs" = "xALL" ]; then
     case $DBHI_ARCH in
       amd64)
-        imgs="main dr gRPC cosim octave spinal dev"
+        imgs="main dr gRPC cosim octave spinal"
       ;;
       arm64|arm)
         imgs="main mambo dr cosim octave"

@@ -2,7 +2,6 @@
   <img src="./logo/light.png" width="550"/>
 </p>
 
-
 <p align="center">
   <a title="'push' workflow Status" href="https://github.com/dbhi/docker/actions?query=workflow%3Apush"><img alt="'docker' workflow Status" src="https://img.shields.io/github/workflow/status/dbhi/docker/push?longCache=true&style=flat-square&logo=github&label=push"></a><!--
   -->
@@ -22,7 +21,6 @@ This repository contains containerized open and free development tools for Dynam
   - `aptman/dbhi:bionic-mambo-*`: [MAMBO](https://github.com/beehive-lab/mambo), based on *base* image.
 
 - `amd64` only:
-  - `aptman/dbhi:dev`: [Node.js](https://nodejs.org), [yarn](https://yarnpkg.com/) and [golang](https://golang.org/).
   - `aptman/dbhi:buster-gRPC-amd64`: [protoc](https://github.com/protocolbuffers/protobuf/), [grpc-go](https://github.com/grpc/grpc-go) and [protoc-gen-go](https://github.com/golang/protobuf/).
   - `aptman/dbhi:bionic-spinal*`: [SpinalHDL](https://github.com/SpinalHDL/SpinalHDL) and [RISCV dev tools](https://static.dev.sifive.com/dev-tools/).
 

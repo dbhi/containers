@@ -24,7 +24,6 @@ jobs:
         - octave
         - cosim
         - spinal
-        - dev
     runs-on: ubuntu-latest
     env:
       TGT_ARCHS: amd64
