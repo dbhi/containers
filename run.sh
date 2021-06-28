@@ -182,10 +182,10 @@ build () {
         if [ "x$DBHI_ARCH" = "xamd64" ]; then
           tgt="amd64"
         fi
-        do_build "${DBHI_SLUG}-${i}-$DBHI_ARCH" --build-arg IMAGE="${DBHI_SLUG}-gui-$DBHI_ARCH" --target="$tgt" - < ubuntu-bionic/cosim.dockerfile
+        do_build "${DBHI_SLUG}-${i}-$DBHI_ARCH" --build-arg IMAGE="${DBHI_SLUG}-$DBHI_ARCH" --target="$tgt" - < ubuntu-bionic/cosim.dockerfile
       ;;
       octave)
-        do_build "${DBHI_SLUG}-${i}-$DBHI_ARCH" --build-arg IMAGE="${DBHI_SLUG}-gui-$DBHI_ARCH" - < ubuntu-bionic/octave.dockerfile
+        do_build "${DBHI_SLUG}-${i}-$DBHI_ARCH" --build-arg IMAGE="${DBHI_SLUG}-cosim-$DBHI_ARCH" - < ubuntu-bionic/octave.dockerfile
       ;;
       grpc|gRPC)
         check_amd64only
