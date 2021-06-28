@@ -13,12 +13,47 @@ env:
 jobs:
 
 
+  main:
+    strategy:
+      max-parallel: 3
+      matrix:
+        include:
+        - { arch: amd64, qarch: ''}
+        - { arch: arm,   qarch: arm}
+        - { arch: arm64, qarch: aarch64}
+    runs-on: ubuntu-latest
+    env:
+      TGT_ARCHS: ${{ matrix.arch }}
+    steps:
+
+    - uses: actions/checkout@v2
+
+    - name: Setup qus
+      if: ${{ matrix.qarch }} != ''
+      run: |
+        docker run --rm --privileged aptman/qus -- -r
+        docker run --rm --privileged aptman/qus -s -- -p ${{ matrix.qarch }}
+
+    - name: run job
+      run: ./run.sh -b main
+
+    - name: Login to docker.io
+      if: github.event_name != 'pull_request' && github.repository == 'dbhi/containers'
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKER_USER }}
+        password: ${{ secrets.DOCKER_PASS }}
+
+    - if: github.event_name != 'pull_request' && github.repository == 'dbhi/containers'
+      run: ./run.sh -p main
+
+
   amd64:
+    needs: [ main ]
     strategy:
       max-parallel: 1
       matrix:
         img:
-        - main
         - dr
         - gRPC
         - octave
@@ -47,11 +82,11 @@ jobs:
 
 
   arm:
+    needs: [ main ]
     strategy:
       max-parallel: 1
       matrix:
         img:
-        - main
         - mambo
         - dr
         - octave
@@ -84,11 +119,11 @@ jobs:
 
 
   arm64:
+    needs: [ main ]
     strategy:
       max-parallel: 1
       matrix:
         img:
-        - main
         - mambo
         - dr
         - octave

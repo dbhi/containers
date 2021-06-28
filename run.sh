@@ -221,7 +221,7 @@ fi
 
 for DBHI_ARCH in $TGT_ARCHS; do
   case $DBHI_ARCH in
-    aarch64)
+    aarch64|arm64)
       DBHI_ARCH="arm64"
       IMG="arm64v8/ubuntu:bionic"
     ;;
