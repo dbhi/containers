@@ -15,24 +15,24 @@ RUN apt-get update -qq \
     git \
     libstdc++-8-dev \
     make \
-      build-essential \
-      flex \
-      gawk \
-      gperf \
-      libbz2-dev \
-      libreadline-dev \
-      libffi-dev \
-      libgtk-3-dev \
-      liblzma-dev \
-      pkg-config \
-      subversion \
-      tcl-dev \
-      tk-dev \
+    build-essential \
+    flex \
+    gawk \
+    gperf \
+    libbz2-dev \
+    libreadline-dev \
+    libffi-dev \
+    libgtk-3-dev \
+    liblzma-dev \
+    pkg-config \
+    tcl-dev \
+    tk-dev \
  && apt-get autoclean && apt-get clean && apt-get -y autoremove \
  && update-ca-certificates
 
 RUN mkdir -pv /tmp/gtkwave && cd /tmp/gtkwave \
- && svn checkout svn://svn.code.sf.net/p/gtkwave/code/gtkwave3-gtk3 ./ \
+ && git clone https://github.com/gtkwave/gtkwave ./ \
+ && cd gtkwave3-gtk3 \
  && ./configure --prefix="/usr/local" --with-tk=/usr/lib --enable-gtk3 \
  && make -j$(nproc) \
  && make check \
