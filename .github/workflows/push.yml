@@ -15,7 +15,7 @@ jobs:
 
   main:
     strategy:
-      max-parallel: 3
+      fail-fast: false
       matrix:
         include:
         - { arch: amd64, qarch: ''}
@@ -54,7 +54,7 @@ jobs:
   common:
     needs: main
     strategy:
-      max-parallel: 6
+      fail-fast: false
       matrix:
         platform:
         - { arch: amd64, qarch: ''}
@@ -96,7 +96,7 @@ jobs:
   amd64:
     needs: main
     strategy:
-      max-parallel: 2
+      fail-fast: false
       matrix:
         img:
         - gRPC
@@ -128,7 +128,7 @@ jobs:
   mambo:
     needs: main
     strategy:
-      max-parallel: 6
+      fail-fast: false
       matrix:
         arch:
         - arm
@@ -165,7 +165,7 @@ jobs:
   octave:
     needs: common
     strategy:
-      max-parallel: 3
+      fail-fast: false
       matrix:
         include:
         - { arch: amd64, qarch: ''}
