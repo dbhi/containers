@@ -1,4 +1,4 @@
-ARG IMAGE="ubuntu:bionic"
+ARG IMAGE="ubuntu:focal"
 
 ARG TAG_GHDL="b4d4d9abb322ed0807d2ba0888e73820499aa338"
 ARG TAG_VUNIT="07a7c8be4cca23969ed8ef59d6387aa248364c4c"

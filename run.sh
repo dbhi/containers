@@ -161,27 +161,27 @@ build () {
   for i in $imgs; do
     case $i in
       main|base)
-        do_build_imgarg "$DBHI_ARCH" "$IMG" ubuntu-bionic/main.dockerfile
+        do_build_imgarg "$DBHI_ARCH" "$IMG" ubuntu-focal/main.dockerfile
       ;;
       mambo)
         if [ "x$DBHI_ARCH" = "xamd64" ]; then
           echo "Image <$i> not supported for arch <$DBHI_ARCH>."
           exit 1
         fi
-        do_build_imgarg "${i}-$DBHI_ARCH" "${DBHI_SLUG}-$DBHI_ARCH" ubuntu-bionic/mambo.dockerfile
+        do_build_imgarg "${i}-$DBHI_ARCH" "${DBHI_SLUG}-$DBHI_ARCH" ubuntu-focal/mambo.dockerfile
       ;;
       dr|dynamorio)
-        do_build_imgarg "dr-$DBHI_ARCH" "${DBHI_SLUG}-$DBHI_ARCH" ubuntu-bionic/dynamorio.dockerfile
+        do_build_imgarg "dr-$DBHI_ARCH" "${DBHI_SLUG}-$DBHI_ARCH" ubuntu-focal/dynamorio.dockerfile
       ;;
       cosim)
         tgt="arm"
         if [ "x$DBHI_ARCH" = "xamd64" ]; then
           tgt="amd64"
         fi
-        do_build "${DBHI_SLUG}-${i}-$DBHI_ARCH" --build-arg IMAGE="${DBHI_SLUG}-$DBHI_ARCH" --target="$tgt" - < ubuntu-bionic/cosim.dockerfile
+        do_build "${DBHI_SLUG}-${i}-$DBHI_ARCH" --build-arg IMAGE="${DBHI_SLUG}-$DBHI_ARCH" --target="$tgt" - < ubuntu-focal/cosim.dockerfile
       ;;
       octave)
-        do_build "${DBHI_SLUG}-${i}-$DBHI_ARCH" --build-arg IMAGE="${DBHI_SLUG}-cosim-$DBHI_ARCH" - < ubuntu-bionic/octave.dockerfile
+        do_build "${DBHI_SLUG}-${i}-$DBHI_ARCH" --build-arg IMAGE="${DBHI_SLUG}-cosim-$DBHI_ARCH" - < ubuntu-focal/octave.dockerfile
       ;;
       grpc|gRPC)
         check_amd64only
@@ -189,7 +189,7 @@ build () {
       ;;
       spinalhdl)
         check_amd64only
-        do_build_imgarg "spinalhdl-amd64" "$IMG" ubuntu-bionic/spinalhdl.dockerfile
+        do_build_imgarg "spinalhdl-amd64" "$IMG" ubuntu-focal/spinalhdl.dockerfile
       ;;
       *)
         echo "Unknown image <$i> for host arch <$DBHI_ARCH>"
@@ -200,7 +200,7 @@ build () {
 
 #---
 
-DBHI_SLUG="aptman/dbhi:bionic"
+DBHI_SLUG="aptman/dbhi:focal"
 echo "DBHI_SLUG: $DBHI_SLUG"
 
 if [ -z "$TGT_ARCHS" ]; then
@@ -219,15 +219,15 @@ for DBHI_ARCH in $TGT_ARCHS; do
   case $DBHI_ARCH in
     aarch64|arm64)
       DBHI_ARCH="arm64"
-      IMG="arm64v8/ubuntu:bionic"
+      IMG="arm64v8/ubuntu:focal"
     ;;
     aarch32|armv7l|arm)
       DBHI_ARCH="arm"
-      IMG="arm32v7/ubuntu:bionic"
+      IMG="arm32v7/ubuntu:focal"
     ;;
     x86_64|amd64)
       DBHI_ARCH="amd64"
-      IMG="ubuntu:bionic"
+      IMG="ubuntu:focal"
     ;;
     *)
       echo "Unknown arch $DBHI_ARCH..."

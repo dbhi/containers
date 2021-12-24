@@ -1,4 +1,4 @@
-ARG IMAGE="ubuntu:bionic"
+ARG IMAGE="ubuntu:focal"
 
 #
 # Build GtkWave
