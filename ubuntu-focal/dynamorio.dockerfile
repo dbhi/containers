@@ -1,6 +1,6 @@
 ARG IMAGE="ubuntu:focal"
 
-ARG TAG_DR="00f0038112221cdb839f59020418308ddb09e82d"
+ARG TAG_DR="27193828261be587d06bcbbca3eabc49726d441f"
 
 FROM $IMAGE
 
@@ -9,6 +9,7 @@ ARG TAG_DR
 RUN apt update \
  && DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends \
    cmake \
+   gcc \
    g++ \
  && apt autoclean && apt clean && apt -y autoremove \
  && mkdir -p /tmp/dynamorio && cd /tmp/dynamorio \

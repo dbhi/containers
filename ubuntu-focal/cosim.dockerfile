@@ -10,6 +10,7 @@ WORKDIR /work
 
 RUN apt-get update -qq \
  && DEBIAN_FRONTEND=noninteractive apt-get -y install --no-install-recommends \
+    autotools-dev \
     ca-certificates \
     gcc \
     git \
@@ -35,10 +36,10 @@ ENV PREFIX=/usr/local/bin
 RUN mkdir -pv /tmp/gtkwave && cd /tmp/gtkwave \
  && git clone https://github.com/gtkwave/gtkwave ./ \
  && cd gtkwave3-gtk3 \
+ && ./autogen.sh \
  && ./configure --prefix="/usr/local" --with-tk=/usr/lib --enable-gtk3 \
  && make -j$(nproc) \
- && make check \
- && make DESTDIR="/tmp/build-dir" install
+ && make DESTDIR="/tmp/build-dir" check install
 
 #
 # GtkWave

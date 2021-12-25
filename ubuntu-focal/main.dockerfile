@@ -1,7 +1,7 @@
 ARG IMAGE="ubuntu:focal"
 
-ARG TAG_GHDL="b4d4d9abb322ed0807d2ba0888e73820499aa338"
-ARG TAG_VUNIT="07a7c8be4cca23969ed8ef59d6387aa248364c4c"
+ARG TAG_GHDL="7e41be2dabf79b21f3d0be210e3d01d541a7e82c"
+ARG TAG_VUNIT="f344c8b5642d7aa13db2e16f6fc7151585ca96d0"
 
 #
 # Build GHDL
@@ -14,12 +14,12 @@ ARG TAG_GHDL
 RUN apt-get update -qq \
   && DEBIAN_FRONTEND=noninteractive apt-get -y install --no-install-recommends \
       ca-certificates \
-      clang-6.0 \
+      clang-9 \
       curl \
       gcc \
       git \
       gnat \
-      llvm-6.0-dev \
+      llvm-9-dev \
       make \
       zlib1g-dev \
   && apt-get autoclean && apt-get clean && apt-get -y autoremove \
@@ -27,7 +27,7 @@ RUN apt-get update -qq \
 
 RUN mkdir -p /tmp/ghdl && cd /tmp/ghdl \
  && curl -fsSL https://codeload.github.com/ghdl/ghdl/tar.gz/$TAG_GHDL | tar xzf - --strip-components=1 \
- && CXX=clang++-6.0 ./configure --with-llvm-config=llvm-config-6.0 --default-pic --disable-werror \
+ && CXX=clang++-9 ./configure --with-llvm-config=llvm-config-9 --default-pic --disable-werror \
  && make \
  && make DESTDIR=/tmp/ghdl-llvm install
 
@@ -58,8 +58,8 @@ RUN apt update -qq \
       ca-certificates \
       curl \
       gcc \
-      libgnat-7 \
-      libllvm6.0 \
+      libgnat-9 \
+      libllvm9 \
       make \
       python3 \
       python3-pip \
